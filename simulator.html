@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>STREAMONOMICS | Simulator</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/simulator.css" />
 </head>
 <body>
+
+  <!-- TOP NAV -->
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html"><span class="brand-mark"></span><span>STREAMONOMICS</span></a>
       <nav class="nav" aria-label="Primary">
         <a href="index.html">Home</a>
         <a href="resources.html">Resources</a>
-    
         <a href="data.html">Data</a>
         <a class="active" href="simulator.html">Simulator</a>
       </nav>
@@ -21,27 +23,398 @@
     </div>
   </header>
 
-  <main class="section">
-    <div class="container simulator-shell">
-      <div class="simulator-viewport">
-        <div>
-          <div class="kicker">Placeholder</div>
-          <h1 class="h1" style="font-size: clamp(2.6rem, 6vw, 5rem);">Animated presentation goes here</h1>
-          <p class="lead" style="margin-inline:auto;">
-            This space is where we'll put the interactive prototype.
-          </p>
-          <div class="hero-actions" style="justify-content:center; margin-top:24px;">
-            <a class="btn btn-primary" href="data.html">View Data Pages</a>
-            <a class="btn btn-secondary" href="research.html">View Research</a>
+  <!-- PERSISTENT STATUS BAR (hidden until screen 1 is complete) -->
+  <div class="sim-statusbar" id="sim-statusbar" style="display:none;">
+    <div class="sim-statusbar-inner">
+      <span>🏙️ City: <strong id="status-city">—</strong></span>
+      <span>🎯 Goal: <strong id="status-goal">—</strong></span>
+      <span>💰 Income: <strong id="status-income">—</strong></span>
+      <span id="status-badge" class="status-badge">—</span>
+    </div>
+  </div>
+
+  <!-- SIMULATOR SCREENS -->
+  <main class="sim-main">
+
+    <!-- ============================================================
+         SCREEN 0: ENTRY
+         ============================================================ -->
+    <section class="sim-screen active" id="screen-0">
+      <div class="sim-hero">
+        <div class="kicker">Streamonomics Simulator</div>
+        <h1 class="h1">Turn your audience<br>into income.</h1>
+        <p class="lead">Shape your artist profile. Watch the tradeoffs emerge. Test your viability.</p>
+        <button class="btn btn-primary btn-lg" onclick="goTo(1)">Begin Simulation →</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 1: CITY / COST OF LIVING
+         ============================================================ -->
+    <section class="sim-screen" id="screen-1">
+      <div class="sim-two-col">
+
+        <!-- LEFT: City Selection -->
+        <div class="sim-col-main">
+          <div class="kicker">Step 1 of 5</div>
+          <h2 class="h2">Set Your City</h2>
+          <p class="note">Your city sets your cost baseline — the minimum you need to survive.</p>
+
+          <!-- City dropdown (placeholder for SVG map) -->
+          <div class="form-group" style="margin-top:24px;">
+            <label for="city-select">Select your city</label>
+            <select id="city-select" class="sim-select" onchange="onCityChange()">
+              <option value="">— Choose a city —</option>
+            </select>
+          </div>
+
+          <!-- Map placeholder -->
+          <div class="map-placeholder" id="map-placeholder">
+            <span>🗺️ Interactive map coming soon</span>
           </div>
         </div>
+
+        <!-- RIGHT: Cost Breakdown Panel -->
+        <div class="sim-col-side" id="city-panel" style="display:none;">
+          <div class="side-panel">
+            <h3 id="panel-city-name">—</h3>
+            <div class="cost-breakdown">
+              <div class="cost-row"><span>🏠 Housing</span><strong id="cost-housing">—</strong></div>
+              <div class="cost-row"><span>🍔 Food</span><strong id="cost-food">—</strong></div>
+              <div class="cost-row"><span>🚗 Transportation</span><strong id="cost-transport">—</strong></div>
+              <div class="cost-row"><span>🏥 Medical</span><strong id="cost-medical">—</strong></div>
+              <div class="cost-row"><span>📱 Internet & Mobile</span><strong id="cost-internet">—</strong></div>
+              <div class="cost-row"><span>🏛️ Civic</span><strong id="cost-civic">—</strong></div>
+              <div class="cost-row"><span>📦 Other</span><strong id="cost-other">—</strong></div>
+            </div>
+            <div class="cost-total">
+              <span>Monthly Cost of Living</span>
+              <strong id="cost-total">—</strong>
+            </div>
+            <div class="cost-survival">
+              <span>Post-tax survival income</span>
+              <strong id="cost-survival">—</strong>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
+      <div class="sim-nav">
+        <button class="btn btn-secondary" onclick="goTo(0)">← Back</button>
+        <button class="btn btn-primary" id="btn-1-next" onclick="goTo(2)" disabled>Next: Your Audience →</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2: AUDIENCE
+         ============================================================ -->
+    <section class="sim-screen" id="screen-2">
+      <div class="sim-two-col">
+
+        <!-- LEFT: Sliders -->
+        <div class="sim-col-main">
+          <div class="kicker">Step 2 of 5</div>
+          <h2 class="h2">Define Your Audience</h2>
+          <p class="note">Your audience size and loyalty determine what income strategies are available to you.</p>
+
+          <div class="slider-group">
+            <label>Audience Size</label>
+            <div class="slider-labels">
+              <span>Nano</span><span>Micro</span><span>Mid</span><span>Macro</span>
+            </div>
+            <input type="range" id="slider-audience" min="0" max="3" step="1" value="0"
+                   oninput="onAudienceChange()" />
+            <p class="slider-hint" id="hint-audience">5K–20K monthly listeners</p>
+          </div>
+
+          <div class="slider-group" style="margin-top:32px;">
+            <label>Fan Strength (Monetization)</label>
+            <div class="slider-labels">
+              <span>Weak</span><span></span><span></span><span>Strong</span>
+            </div>
+            <input type="range" id="slider-fanstrength" min="0" max="100" step="10" value="50"
+                   oninput="onAudienceChange()" />
+            <p class="slider-hint" id="hint-fanstrength">How likely fans are to spend money</p>
+          </div>
+        </div>
+
+        <!-- RIGHT: Live Feedback -->
+        <div class="sim-col-side">
+          <div class="side-panel">
+            <h3>Your Artist Profile</h3>
+            <div class="profile-stat">
+              <span>Artist Type</span>
+              <strong id="profile-type">—</strong>
+            </div>
+            <div class="profile-stat">
+              <span>Suggested Venue</span>
+              <strong id="profile-venue">—</strong>
+            </div>
+            <div class="profile-stat">
+              <span>Streaming Tier</span>
+              <strong id="profile-tier">—</strong>
+            </div>
+            <div class="profile-stat">
+              <span>Est. Monthly Streams</span>
+              <strong id="profile-streams">—</strong>
+            </div>
+            <div class="sim-warning" id="warning-audience" style="display:none;"></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="sim-nav">
+        <button class="btn btn-secondary" onclick="goTo(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy →</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3: STRATEGY
+         ============================================================ -->
+    <section class="sim-screen" id="screen-3">
+      <div class="sim-two-col">
+
+        <!-- LEFT: Strategy Sliders -->
+        <div class="sim-col-main">
+          <div class="kicker">Step 3 of 5</div>
+          <h2 class="h2">Choose Your Strategy</h2>
+          <p class="note">How do you make money? Adjust each lever to weight your income model.</p>
+
+          <div class="strategy-slider-row">
+            <div class="strategy-icon">🎵</div>
+            <div class="strategy-content">
+              <label>Streaming</label>
+              <p class="micro">Release music, playlists, catalog growth</p>
+              <input type="range" id="strat-streaming" min="1" max="10" step="1" value="5"
+                     oninput="onStrategyChange()" />
+              <span class="strat-value" id="val-streaming">5</span>
+            </div>
+          </div>
+
+          <div class="strategy-slider-row">
+            <div class="strategy-icon">📱</div>
+            <div class="strategy-content">
+              <label>Social Media</label>
+              <p class="micro">Content creation, brand deals, platform growth</p>
+              <input type="range" id="strat-social" min="1" max="10" step="1" value="5"
+                     oninput="onStrategyChange()" />
+              <span class="strat-value" id="val-social">5</span>
+            </div>
+          </div>
+
+          <div class="strategy-slider-row">
+            <div class="strategy-icon">🎤</div>
+            <div class="strategy-content">
+              <label>Touring</label>
+              <p class="micro">Shows, tours, live fan conversion</p>
+              <input type="range" id="strat-touring" min="1" max="10" step="1" value="5"
+                     oninput="onStrategyChange()" />
+              <span class="strat-value" id="val-touring">5</span>
+            </div>
+          </div>
+
+          <div class="strategy-slider-row">
+            <div class="strategy-icon">👕</div>
+            <div class="strategy-content">
+              <label>Merch</label>
+              <p class="micro">Direct-to-fan product sales</p>
+              <input type="range" id="strat-merch" min="1" max="10" step="1" value="5"
+                     oninput="onStrategyChange()" />
+              <span class="strat-value" id="val-merch">5</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: System Reaction -->
+        <div class="sim-col-side">
+          <div class="side-panel">
+            <h3>System Reaction</h3>
+            <div class="reaction-message" id="reaction-message">
+              Adjust the sliders to see how your strategy shapes your income.
+            </div>
+            <div style="margin-top:24px;">
+              <h4>Strategy Weights</h4>
+              <canvas id="chart-strategy" width="200" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="sim-nav">
+        <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
+        <button class="btn btn-primary" onclick="goTo(4)">Next: Activate Income →</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4: INCOME ENGINES
+         ============================================================ -->
+    <section class="sim-screen" id="screen-4">
+      <div class="kicker">Step 4 of 5</div>
+      <h2 class="h2">Activate Your Income Engines</h2>
+      <p class="note">Fine-tune each income stream. The math updates live.</p>
+
+      <div class="engines-grid">
+
+        <!-- Engine A: Streaming -->
+        <div class="engine-card">
+          <div class="engine-header">🎵 Streaming</div>
+          <div class="engine-body">
+            <div class="engine-stat"><span>Platform</span><strong>Spotify</strong></div>
+            <div class="engine-stat"><span>Tier</span><strong id="eng-stream-tier">—</strong></div>
+            <div class="engine-stat"><span>Monthly Streams</span><strong id="eng-stream-count">—</strong></div>
+            <div class="engine-stat"><span>CPM Rate</span><strong id="eng-stream-cpm">—</strong></div>
+            <div class="engine-income"><span>Monthly Income</span><strong id="eng-stream-income">—</strong></div>
+          </div>
+        </div>
+
+        <!-- Engine B: Social -->
+        <div class="engine-card">
+          <div class="engine-header">📱 Social Media</div>
+          <div class="engine-body">
+            <div class="engine-stat"><span>Best Platform</span><strong id="eng-social-platform">—</strong></div>
+            <div class="engine-stat"><span>Monthly Reach</span><strong id="eng-social-reach">—</strong></div>
+            <div class="engine-stat"><span>CPM Rate</span><strong id="eng-social-cpm">—</strong></div>
+            <div class="engine-income"><span>Monthly Income</span><strong id="eng-social-income">—</strong></div>
+          </div>
+        </div>
+
+        <!-- Engine C: Touring -->
+        <div class="engine-card">
+          <div class="engine-header">🎤 Touring</div>
+          <div class="engine-body">
+            <div class="engine-stat"><span>Venue Type</span><strong id="eng-tour-venue">—</strong></div>
+            <div class="engine-stat"><span>Capacity</span><strong id="eng-tour-cap">—</strong></div>
+            <div class="engine-stat"><span>Ticket Price</span><strong id="eng-tour-ticket">—</strong></div>
+            <div class="form-group" style="margin-top:12px;">
+              <label>Shows per month: <strong id="val-shows">4</strong></label>
+              <input type="range" id="slider-shows" min="1" max="20" value="4"
+                     oninput="onTouringChange()" />
+            </div>
+            <div class="form-group">
+              <label>Artist cut: <strong id="val-cut">15</strong>%</label>
+              <input type="range" id="slider-cut" min="10" max="30" value="15"
+                     oninput="onTouringChange()" />
+            </div>
+            <div class="engine-income"><span>Monthly Income</span><strong id="eng-tour-income">—</strong></div>
+          </div>
+        </div>
+
+        <!-- Engine D: Merch -->
+        <div class="engine-card">
+          <div class="engine-header">👕 Merch</div>
+          <div class="engine-body">
+            <div class="form-group">
+              <label>Attach Rate: <strong id="val-attach">10</strong>%</label>
+              <input type="range" id="slider-attach" min="1" max="30" value="10"
+                     oninput="onMerchChange()" />
+            </div>
+            <div class="merch-toggles">
+              <label><input type="checkbox" id="merch-tshirt" checked onchange="onMerchChange()"> T-Shirt ($30)</label>
+              <label><input type="checkbox" id="merch-vinyl" onchange="onMerchChange()"> Vinyl LP ($31)</label>
+              <label><input type="checkbox" id="merch-hoodie" onchange="onMerchChange()"> Hoodie ($60)</label>
+            </div>
+            <div class="engine-stat"><span>Based on show attendance</span><strong id="eng-merch-attendance">—</strong></div>
+            <div class="engine-income"><span>Monthly Income</span><strong id="eng-merch-income">—</strong></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Total Income Summary -->
+      <div class="income-summary" id="income-summary">
+        <div class="income-summary-inner">
+          <div class="income-item"><span>🎵 Streaming</span><strong id="sum-streaming">$0</strong></div>
+          <div class="income-item"><span>📱 Social</span><strong id="sum-social">$0</strong></div>
+          <div class="income-item"><span>🎤 Touring</span><strong id="sum-touring">$0</strong></div>
+          <div class="income-item"><span>👕 Merch</span><strong id="sum-merch">$0</strong></div>
+          <div class="income-item total"><span>Total Monthly</span><strong id="sum-total">$0</strong></div>
+          <div class="income-item"><span>Cost of Living</span><strong id="sum-cost">$0</strong></div>
+          <div class="income-item"><span>Net</span><strong id="sum-net">$0</strong></div>
+        </div>
+      </div>
+
+      <div class="sim-nav">
+        <button class="btn btn-secondary" onclick="goTo(3)">← Back</button>
+        <button class="btn btn-primary" onclick="goTo(5)">See Your Results →</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 5: RESULTS
+         ============================================================ -->
+    <section class="sim-screen" id="screen-5">
+      <div class="kicker">Your Results</div>
+      <h2 class="h2">Viability Report</h2>
+
+      <!-- Verdict Banner -->
+      <div class="verdict-banner" id="verdict-banner">
+        <div class="verdict-income" id="verdict-income">$0 / mo</div>
+        <div class="verdict-status" id="verdict-status">—</div>
+        <div class="verdict-delta" id="verdict-delta">—</div>
+      </div>
+
+      <div class="results-grid">
+
+        <!-- LEFT: Income Breakdown -->
+        <div class="results-col">
+          <h3>Income Breakdown</h3>
+          <div class="result-card"><span>🎵 Streaming</span><strong id="res-streaming">—</strong></div>
+          <div class="result-card"><span>📱 Social Media</span><strong id="res-social">—</strong></div>
+          <div class="result-card"><span>🎤 Touring</span><strong id="res-touring">—</strong></div>
+          <div class="result-card"><span>👕 Merch</span><strong id="res-merch">—</strong></div>
+          <div class="result-card total"><span>Total</span><strong id="res-total">—</strong></div>
+          <div class="result-card"><span>Cost of Living</span><strong id="res-cost">—</strong></div>
+          <div class="result-card"><span>Net Monthly</span><strong id="res-net">—</strong></div>
+        </div>
+
+        <!-- RIGHT: Income Mix Chart -->
+        <div class="results-col">
+          <h3>Income Mix</h3>
+          <canvas id="chart-income-mix" width="300" height="300"></canvas>
+        </div>
+
+      </div>
+
+      <!-- Growth Curve -->
+      <div class="results-section">
+        <h3>Income vs Audience Growth</h3>
+        <canvas id="chart-growth" width="600" height="250"></canvas>
+      </div>
+
+      <!-- What It Would Take -->
+      <div class="results-section">
+        <h3>What It Would Take</h3>
+        <div class="what-it-takes" id="what-it-takes">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Persona -->
+      <div class="results-section">
+        <div class="persona-card" id="persona-card">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
+        <button class="btn btn-secondary" onclick="goTo(1)">Change City</button>
+        <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
+      </div>
+
+    </section>
+
   </main>
-  <footer class="footer">
-    <div class="container mini">
-      ......
-    </div>
-  </footer>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Data layer -->
+  <script src="js/data.js"></script>
+  <!-- Simulator logic -->
+  <script src="js/simulator.js"></script>
+
 </body>
 </html>
