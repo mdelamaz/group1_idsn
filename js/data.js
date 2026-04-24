@@ -168,4 +168,7 @@ function populateSocialTable() {
 //  3. INIT — run everything on page load
 // =============================================================
 
-document.addEventListener('DOMContentLoaded', initAllData);
+// Only auto-init on data.html, not on simulator.html
+if (document.getElementById('tbody-streaming')) {
+  document.addEventListener('DOMContentLoaded', initAllData);
+}
