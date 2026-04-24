@@ -23,19 +23,229 @@
 
   <main class="section">
     <div class="container simulator-shell">
-      <div class="simulator-viewport">
-        <div>
-          <div class="kicker">Placeholder</div>
-          <h1 class="h1" style="font-size: clamp(2.6rem, 6vw, 5rem);">Animated presentation goes here</h1>
-          <p class="lead" style="margin-inline:auto;">
-            This space is where we'll put the interactive prototype.
-          </p>
-          <div class="hero-actions" style="justify-content:center; margin-top:24px;">
-            <a class="btn btn-primary" href="data.html">View Data Pages</a>
-            <a class="btn btn-secondary" href="research.html">View Research</a>
-          </div>
+      
+ <!-- FLOATING HUD -->
+<div id="sim-hud" class="sim-hud" hidden>
+
+  <div class="stat-grid" style="gap:10px;">
+
+    <!-- EXPENSES -->
+    <div class="stat" style="padding:12px;">
+      <label>Expenses</label>
+      <strong id="hud-expenses">$0</strong>
+    </div>
+
+    <!-- INCOME -->
+    <div class="stat" style="padding:12px;">
+      <label>Income</label>
+      <strong id="hud-income">$0</strong>
+    </div>
+
+  </div>
+
+  <div class="meter-labels" style="margin-top:10px; font-size:0.7rem;">
+    <span>Below</span>
+    <span>Living</span>
+    <span>Above</span>
+  </div>
+
+  <div class="meter" style="height:10px;">
+    <div class="meter-expenses"></div>
+    <div class="meter-income" id="meter-income"></div>
+  </div>
+
+  <div class="result-line" style="margin-top:8px; font-size:0.85rem;">
+    <strong id="hud-status">Go Back to Set Your City</strong>
+  </div>
+
+</div>
+
+<!-- THEN your simulator -->
+<div class="simulator-viewport">
+
+
+  <!-- SCREEN WRAPPER -->
+  <div id="sim-screens" style="width:100%; max-width:900px;">
+
+    <!-- 0. ENTRY -->
+    <section class="sim-screen active" id="screen-entry">
+      <div class="kicker">Simulation</div>
+      <h1 class="h2">Turn your audience into income</h1>
+      <p class="lead">Shape your artist profile and test what actually works.</p>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="nextScreen()">Begin Simulation →</button>
+      </div>
+    </section>
+
+    <!-- 1. CITY -->
+    <section class="sim-screen" id="screen-city">
+  <h2 class="h2">Set Your City</h2>
+
+  <div class="grid-2">
+
+    <!-- LEFT: INPUTS -->
+    <div class="card card-pad stack">
+      
+      <div>
+        <label class="mini">Select City</label>
+        <select id="city-select" style="width:100%; padding:12px; margin-top:6px;">
+          <option value="">Choose a city</option>
+          <option value="chicago">Chicago</option>
+          <option value="nyc">New York</option>
+          <option value="la">Los Angeles</option>
+        </select>
+      </div>
+
+      <!-- MAP PLACEHOLDER -->
+      <div>
+        <label class="mini">Map</label>
+        <div class="design-image" style="height:220px;">
+          <!-- placeholder for interactive map -->
         </div>
       </div>
+
+    </div>
+
+    <!-- RIGHT: COST BREAKDOWN -->
+    <div class="card card-pad">
+
+      <!-- CITY NAME -->
+      <div style="margin-bottom:16px;">
+        <label class="mini">City</label>
+        <h2 id="city-name">—</h2>
+      </div>
+
+      <!-- EXPENSE LIST -->
+      <div class="expense-list">
+
+        <div class="expense-row">
+          <span>Housing</span>
+          <strong id="cost-housing">—</strong>
+        </div>
+
+        <div class="expense-row">
+          <span>Food</span>
+          <strong id="cost-food">—</strong>
+        </div>
+
+        <div class="expense-row">
+          <span>Medical</span>
+          <strong id="cost-medical">—</strong>
+        </div>
+
+        <div class="expense-row">
+          <span>Transportation</span>
+          <strong id="cost-transport">—</strong>
+        </div>
+
+        <div class="expense-row">
+          <span>Internet</span>
+          <strong id="cost-internet">—</strong>
+        </div>
+
+        <div class="expense-row">
+          <span>Other</span>
+          <strong id="cost-other">—</strong>
+        </div>
+
+      </div>
+
+      <!-- TOTAL -->
+      <div class="expense-total">
+        <span>Total Monthly (Post-Tax)</span>
+        <strong id="cost-total">$0</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="hero-actions" style="margin-top:24px;">
+    <button class="btn btn-primary" onclick="nextScreen()">
+      Next: Your Audience
+    </button>
+  </div>
+</section>
+
+    <!-- 2. AUDIENCE -->
+    <section class="sim-screen" id="screen-audience">
+      <h2 class="h2">Right Size Your Audience</h2>
+
+      <div class="card card-pad">
+        <label>Audience Size</label>
+        <input type="range" min="1" max="4" id="audience-size">
+
+        <label style="margin-top:12px;">Fan Strength</label>
+        <input type="range" min="1" max="4" id="fan-strength">
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+        <button class="btn btn-primary" onclick="nextScreen()">Next: Your Strategy</button>
+      </div>
+    </section>
+
+    <!-- 3. STRATEGY -->
+    <section class="sim-screen" id="screen-strategy">
+      <h2 class="h2">Select Your Strategy</h2>
+
+      <div class="card card-pad stack">
+        <div>
+          <label>Streaming</label>
+          <input type="range" min="0" max="10" id="str-stream">
+        </div>
+
+        <div>
+          <label>Touring</label>
+          <input type="range" min="0" max="10" id="str-tour">
+        </div>
+
+        <div>
+          <label>Merch</label>
+          <input type="range" min="0" max="10" id="str-merch">
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+        <button class="btn btn-primary" onclick="nextScreen()">Next: Your Income</button>
+      </div>
+    </section>
+
+    <!-- 4. ENGINES -->
+    <section class="sim-screen" id="screen-engines">
+      <h2 class="h2">Can You Live Off It?</h2>
+
+      <div class="grid-3">
+        <div class="stat">
+          <label>Streaming</label>
+          <strong id="out-stream">$0</strong>
+        </div>
+
+        <div class="stat">
+          <label>Touring</label>
+          <strong id="out-tour">$0</strong>
+        </div>
+
+        <div class="stat">
+          <label>Merch</label>
+          <strong id="out-merch">$0</strong>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+        <button class="btn btn-secondary" onclick="calcResults()">Start Over</button>
+      </div>
+    </section>
+
+  
+  </div>
+</div>
+    
+    
     </div>
   </main>
   <footer class="footer">
@@ -43,5 +253,204 @@
       ......
     </div>
   </footer>
+
+
+  <script>
+
+  const cityData = {
+  chicago: { total: 3600 },
+  nyc: { total: 4500 },
+  la: { total: 4200 }
+};
+
+document.getElementById("city-select").addEventListener("change", function () {
+  const city = this.value;
+  if (!cityData[city]) return;
+
+  const total = cityData[city].total;
+
+  document.getElementById("cost-total").innerText = "$" + total;
+  document.getElementById("hud-expenses").innerText = "$" + total;
+
+  runSimulation();
+});
+
+
+/* --------------------------
+   STATE
+-------------------------- */
+let current = 0;
+let screens = [];
+
+/* --------------------------
+   INIT (runs after DOM loads)
+-------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  screens = document.querySelectorAll(".sim-screen");
+  showScreen(current);
+
+  // Listen for ALL input changes (live simulation)
+  document.addEventListener("input", runSimulation);
+});
+
+/* --------------------------
+   SCREEN NAVIGATION
+-------------------------- */
+function showScreen(i) {
+  screens.forEach(s => s.classList.remove("active"));
+  screens[i].classList.add("active");
+}
+
+function nextScreen() {
+  current++;
+  showScreen(current);
+
+  // Show HUD ONLY after city screen
+  if (current === 2) {
+    showHUD();
+  }
+}
+
+function prevScreen() {
+  current--;
+
+  if (current < 2) {
+    hideHUD();
+  }
+
+  showScreen(current);
+}
+
+function restartSim() {
+  current = 0;
+  hideHUD();
+  showScreen(current);
+}
+
+/* --------------------------
+   HUD CONTROL
+-------------------------- */
+function showHUD() {
+  const hud = document.getElementById("sim-hud");
+  hud.hidden = false;
+
+  setTimeout(() => {
+    hud.classList.add("visible");
+  }, 10);
+}
+
+function hideHUD() {
+  const hud = document.getElementById("sim-hud");
+  hud.classList.remove("visible");
+
+  setTimeout(() => {
+    hud.hidden = true;
+  }, 300);
+}
+
+/* --------------------------
+   SIMULATION CORE
+-------------------------- */
+function runSimulation() {
+  const income = calcTotalIncome();
+  const expenses = getExpenses();
+
+  updateHUD(income, expenses);
+}
+
+/* --------------------------
+   DATA HELPERS
+-------------------------- */
+function getExpenses() {
+  let text = document.getElementById("hud-expenses")?.innerText || "0";
+  return parseInt(text.replace(/[^0-9]/g, "")) || 0;
+}
+
+/* --------------------------
+   INCOME MODEL (V1)
+-------------------------- */
+function calcTotalIncome() {
+  let touring = calcTouringIncome();
+  let merch = calcMerchIncome(touring);
+
+  return touring + merch;
+}
+
+function calcTouringIncome() {
+  const audience = document.getElementById("audience-size")?.value || 1;
+  const fanStrength = document.getElementById("fan-strength")?.value || 1;
+
+  let capacity = 100;
+  let ticketPrice = 20;
+
+  if (audience == 2) { capacity = 500; ticketPrice = 60; }
+  if (audience == 3) { capacity = 2000; ticketPrice = 90; }
+  if (audience == 4) { capacity = 10000; ticketPrice = 120; }
+
+  let attendanceRate = 0.2 + (fanStrength * 0.15);
+
+  let shows = 2;
+  let artistCut = 0.15;
+
+  let attendance = capacity * attendanceRate;
+
+  return Math.round(shows * attendance * ticketPrice * artistCut);
+}
+
+function calcMerchIncome(touringIncome) {
+  let attachRate = 0.1;
+  let avgSpend = 30;
+
+  let estimatedAttendance = touringIncome / 30;
+
+  return Math.round(estimatedAttendance * attachRate * avgSpend);
+}
+
+/* --------------------------
+   HUD UPDATE
+-------------------------- */
+function updateHUD(income, expenses) {
+  if (!expenses || expenses === 0) {
+    document.getElementById("meter-income").style.width = "0%";
+    document.getElementById("hud-status").innerText = "Set your city to begin";
+    return;
+  }
+
+  document.getElementById("hud-income").innerText = "$" + income;
+  document.getElementById("hud-expenses").innerText = "$" + expenses;
+
+  let ratio = income / expenses;
+  let percent = Math.min(ratio * 100, 120);
+
+  const bar = document.getElementById("meter-income");
+  bar.style.width = percent + "%";
+
+  // COLOR LOGIC
+  if (ratio < 0.8) {
+    bar.style.background = "#c62828"; // red
+  } else if (ratio < 1.05) {
+    bar.style.background = "#f9a825"; // yellow
+  } else {
+    bar.style.background = "#2e7d32"; // green
+  }
+
+  // STATUS TEXT
+  let status = "";
+
+  if (income === 0) {
+    status = "No income yet";
+  } else if (ratio < 1) {
+    status = "Below living wage";
+  } else if (ratio < 1.1) {
+    status = "At living wage";
+  } else {
+    status = "Above living wage";
+  }
+
+  document.getElementById("hud-status").innerText = status;
+}
+</script>
+
+
 </body>
 </html>
