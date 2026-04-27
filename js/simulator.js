@@ -285,11 +285,25 @@ function calcIncome() {
   const fanMult  = S.fanStrength / 100;
 
   // --- Streaming ---
-  const spotifyCPM        = CPM[tierName] ? CPM[tierName]['spotify'] : 0;
-  const streamingWeight   = S.strategy.streaming / 10;
-  S.income.streaming      = spotifyCPM
-    ? (spotifyCPM / 1000) * streams * streamingWeight
-    : 0;
+ // --- Streaming (NEW MODEL using real CPM + fan strength) ---
+const streamingWeight = S.strategy.streaming / 10;
+const fanStrength = S.fanStrength / 100;
+
+const range = TIER_STREAMS[tierName];
+const cpm = CPM[tierName] ? CPM[tierName]['spotify'] : null;
+
+let streamingIncome = 0;
+
+if (range && cpm) {
+  const streamsCalc =
+    range.low + (range.high - range.low) * fanStrength;
+
+  const adjustedCPM = cpm * (0.8 + fanStrength * 0.4);
+
+  streamingIncome = (streamsCalc / 1000) * adjustedCPM * streamingWeight;
+}
+
+S.income.streaming = streamingIncome;
 
   // --- Social (best non-spotify platform for this tier) ---
   const socialPlatforms   = ['youtube', 'instagram', 'tiktok'];
