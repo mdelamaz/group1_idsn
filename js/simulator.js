@@ -13,7 +13,7 @@ let S = {
 
   // Screen 2
   audienceTier: 0,      // 0=Nano, 1=Micro, 2=Mid, 3=Macro
-  fanStrength:  50,     // 0–100
+  fanStrength:  0,     // 0–100
 
   // Screen 3
   strategy: {
@@ -153,7 +153,7 @@ function onCityChange() {
                 data.medical + data.internet + data.civic + data.other;
 
   document.getElementById('cost-total').textContent    = fmt(total);
-  document.getElementById('cost-survival').textContent = fmt(data.postTaxMin);
+ 
 
   // Enable next button
   document.getElementById('btn-1-next').disabled = false;
@@ -169,38 +169,70 @@ function onCityChange() {
 function onAudienceChange() {
   S.fanStrength = parseInt(document.getElementById('slider-fanstrength').value);
 
-  const streamingEnabled = document.getElementById('aud-streaming').checked;
-  const liveEnabled = document.getElementById('aud-live').checked;
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
 
-  const streamingSize = document.getElementById('streaming-size').value;
-  const liveSize = document.getElementById('live-size').value;
+  const selectedPlatforms = Array.from(
+    document.querySelectorAll(".aud-platform:checked")
+  ).map(el => el.value);
+
+  const streamingEnabled = selectedPlatforms.length > 0;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+
+  const streamingSize = document.getElementById('streaming-size')?.value;
+  const liveSize = document.getElementById('live-size')?.value;
+
+  const liveBlock = document.getElementById("audience-live-size");
+if (liveBlock) {
+  liveBlock.style.display = liveEnabled ? "block" : "none";
+}
+
+  // show/hide streaming size
+  const streamingBlock = document.getElementById("audience-streaming-size");
+  if (streamingBlock) {
+    streamingBlock.style.display = streamingEnabled ? "block" : "none";
+  }
+
+  
 
   let reach = 0;
   let mix = [];
 
-  // 🔥 HARD RESET (prevents old values sticking)
   S.audienceTier = null;
 
-  // 🔥 STOP EARLY — nothing selected
-  if (!streamingEnabled || streamingSize === "") {
+  // ----------------------------
+  // EARLY STATE
+  // ----------------------------
+  if (
+    selectedPlatforms.length === 0 &&
+    (!liveEnabled || !liveSize)
+  ) {
+    setText("profile-mix", "—");
+    setText("profile-reach", "—");
+    setText("profile-engagement", S.fanStrength + "%");
 
-    document.getElementById("profile-mix").innerText = '—';
-    document.getElementById("profile-reach").innerText = '—';
-
-    document.getElementById('hint-audience').textContent = '—';
-    document.getElementById('profile-type').textContent = '—';
-    document.getElementById('profile-venue').textContent = '—';
-    document.getElementById('profile-tier').textContent = '—';
-    document.getElementById('profile-streams').textContent = '—';
-
-    document.getElementById('hint-fanstrength').textContent =
-      'Fan strength: ' + S.fanStrength + '%';
+    setText("logic-output", "Select platforms or live performance to define your reach.");
 
     updateStatusBar();
     return;
   }
 
-  // --- Streaming (ONLY runs when valid) ---
+  // ----------------------------
+  // PLATFORM LABELS (ALWAYS SHOW)
+  // ----------------------------
+  if (selectedPlatforms.length > 0) {
+    const platformLabels = selectedPlatforms.map(
+      p => p.charAt(0).toUpperCase() + p.slice(1)
+    );
+
+    mix.push(platformLabels.join(", "));
+  }
+
+  // ----------------------------
+  // STREAMING REACH
+  // ----------------------------
   const tierMap = {
     nano: 0,
     micro: 1,
@@ -215,12 +247,21 @@ function onAudienceChange() {
     macro: 1000000
   };
 
-  S.audienceTier = tierMap[streamingSize];
-  reach += reachMap[streamingSize];
-  mix.push("Streaming");
+  if (streamingEnabled && streamingSize) {
+    S.audienceTier = tierMap[streamingSize];
 
-  // --- Live ---
-  if (liveEnabled && liveSize !== "") {
+    const baseReach = reachMap[streamingSize];
+
+    const platformMultiplier = 1 + (selectedPlatforms.length - 1) * 0.1;
+    const cappedMultiplier = Math.min(platformMultiplier, 1.25);
+
+    reach += Math.round(baseReach * cappedMultiplier);
+  }
+
+  // ----------------------------
+  // LIVE
+  // ----------------------------
+  if (liveEnabled && liveSize) {
     const venueMap = {
       small: 200,
       medium: 700,
@@ -232,38 +273,43 @@ function onAudienceChange() {
     mix.push("Live");
   }
 
-  // --- UI updates ---
-  document.getElementById("profile-mix").innerText = mix.join(" + ");
-  document.getElementById("profile-reach").innerText = reach.toLocaleString();
-
-  const tierName = TIER_NAMES[S.audienceTier];
-
-  document.getElementById('hint-fanstrength').textContent =
-    'Fan strength: ' + S.fanStrength + '%';
-
-  const streams = TIER_STREAMS[tierName];
-  const venue = VENUE_TYPES[tierName];
-
-  document.getElementById('hint-audience').textContent = TIER_HINTS[tierName];
-  document.getElementById('profile-type').textContent = ARTIST_TYPES[tierName];
-  document.getElementById('profile-venue').textContent = venue.label;
-  document.getElementById('profile-tier').textContent = tierName;
-  document.getElementById('profile-streams').textContent =
-    streams.mid.toLocaleString();
-
-  // --- Warnings ---
-  const warning = document.getElementById('warning-audience');
-  if (S.audienceTier >= 2 && S.fanStrength < 30) {
-    warning.style.display = 'block';
-    warning.textContent = '⚠️ High streams but weak fan strength — you\'re visible but not monetizing.';
-  } else if (S.audienceTier <= 1 && S.fanStrength > 70) {
-    warning.style.display = 'block';
-    warning.textContent = '⚠️ Strong fans but small audience — focus on converting your core.';
-  } else {
-    warning.style.display = 'none';
+  // ----------------------------
+  // ENGAGEMENT
+  // ----------------------------
+  if (reach > 0) {
+    const engagementMult = 0.5 + (S.fanStrength / 100) * 0.5;
+    reach = Math.round(reach * engagementMult);
   }
 
-  // --- calculate ---
+  // ----------------------------
+  // UI
+  // ----------------------------
+  setText("profile-mix", mix.join(" + "));
+  setText("profile-reach", reach.toLocaleString());
+  setText("profile-engagement", S.fanStrength + "%");
+
+  // ----------------------------
+  // LOGIC TEXT
+  // ----------------------------
+  const logicEl = document.getElementById("logic-output");
+
+  if (logicEl) {
+    let text = `You reach about ${reach.toLocaleString()} people per month. `;
+
+    if (S.fanStrength < 20) {
+      text += "Most of your audience is passive — awareness is high, but engagement is low.";
+    } else if (S.fanStrength < 40) {
+      text += "Your audience is casual — some interest, limited action.";
+    } else if (S.fanStrength < 60) {
+      text += "You have an engaged audience with growing conversion potential.";
+    } else if (S.fanStrength < 80) {
+      text += "Your core fans are reliable and likely to support you.";
+    } else {
+      text += "You have superfans — strong loyalty and high monetization potential.";
+    }
+
+    logicEl.innerText = text;
+  }
 
   updateStatusBar();
 }
@@ -451,7 +497,11 @@ function calcIncome() {
   S.income.merch = 0;
   S.income.total = 0;
 
-  const streamingEnabled = document.getElementById('aud-streaming')?.checked;
+  const selectedPlatforms = Array.from(
+  document.querySelectorAll(".aud-platform:checked")
+);
+
+const streamingEnabled = selectedPlatforms.length > 0;
   const streamingSize = document.getElementById('streaming-size')?.value;
 
   const liveEnabled = document.getElementById('aud-live')?.checked;
@@ -464,7 +514,7 @@ function calcIncome() {
   // -------------------
   // STREAMING
   // -------------------
-  if (streamingEnabled && streamingSize !== "") {
+  if (streamingEnabled && streamingSize) {
 
     const tierMap = {
       nano: "Nano",
@@ -608,7 +658,7 @@ function populateResults() {
   const cost    = data.housing + data.food + data.transportation +
                   data.medical + data.internet + data.civic + data.other;
   const net     = S.income.total - cost;
-  const surplus = S.income.total - data.postTaxMin;
+  
 
   // Verdict
   let status, statusClass;
@@ -768,19 +818,27 @@ function updateStatusBar() {
   bar.style.display = 'block';
   document.getElementById('status-city').textContent   = S.city;
   document.getElementById('status-goal').textContent   = fmt(data.postTaxMin) + '/mo';
-  if (!window.simState.audienceV2.streamingEnabled && !window.simState.audienceV2.liveEnabled) {
   document.getElementById('status-income').textContent = '—';
+
+ const badge = document.getElementById('status-badge');
+
+if (currentScreen < 3) {
+  badge.textContent = '—';
+  badge.className = 'status-badge';
+} else if (S.income.total === 0) {
+  badge.textContent = '—';
+  badge.className = 'status-badge';
+} else if (S.income.total < cost) {
+  badge.textContent = 'Below';
+  badge.className = 'status-badge badge-red';
+} else if (S.income.total < data.postTaxMin) {
+  badge.textContent = 'Close';
+  badge.className = 'status-badge badge-yellow';
 } else {
-  document.getElementById('status-income').textContent = fmt(S.income.total) + '/mo';
+  badge.textContent = 'Viable';
+  badge.className = 'status-badge badge-green';
 }
-
-  const badge = document.getElementById('status-badge');
-  if (S.income.total === 0)          { badge.textContent = '—';           badge.className = 'status-badge'; }
-  else if (S.income.total < cost)    { badge.textContent = 'Below';       badge.className = 'status-badge badge-red'; }
-  else if (S.income.total < data.postTaxMin) { badge.textContent = 'Close'; badge.className = 'status-badge badge-yellow'; }
-  else                               { badge.textContent = 'Viable';      badge.className = 'status-badge badge-green'; }
 }
-
 // =============================================================
 //  RESTART
 // =============================================================

@@ -53,6 +53,19 @@
 .slider-hint          { font-size: .8rem; color: #6b7280; margin-top: 4px; line-height: 1.4; }
 input[type="range"]   { width: 100%;  accent-color: #6366f1;}
 
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+.slider-ticks span {
+  text-align: center;
+  flex: 1;
+}
+
 /* --- Profile Stats --- */
 .profile-stat {
   display: flex;
@@ -184,7 +197,12 @@ input[type="range"]   { width: 100%;  accent-color: #6366f1;}
 .dot.merch     { background: #f59e0b; }
 
 
-
+.engagement-block {
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+}
 
 
 /* --- Navigation --- */

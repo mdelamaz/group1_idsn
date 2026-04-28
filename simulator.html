@@ -91,10 +91,7 @@
               <span>Monthly Cost of Living</span>
               <strong id="cost-total">—</strong>
             </div>
-            <div class="cost-survival">
-              <span>Post-tax survival income</span>
-              <strong id="cost-survival">—</strong>
-            </div>
+            
           </div>
         </div>
 
@@ -105,30 +102,36 @@
       </div>
     </section>
 
-    <!-- ============================================================
-         SCREEN 2: AUDIENCE
-         ============================================================ -->
-    <section class="sim-screen" id="screen-2">
+
+
+  <!-- ============================================================
+     SCREEN 2: AUDIENCE
+     ============================================================ -->
+
+<section class="sim-screen" id="screen-2">
   <div class="sim-two-col">
 
     <!-- LEFT: Audience Builder -->
     <div class="sim-col-main">
       <div class="kicker">Step 2 of 5</div>
       <h2 class="h2">Define Your Audience</h2>
-      <p class="note">Your audience doesn’t just define how many people hear your music - it determines how you make money.</p>
-    
-      
-      <!-- STEP 2A -->
+      <p class="note">Define your reach, then how strongly your audience engages.</p>
+
+      <!-- =========================
+           STREAMING
+           ========================= -->
       <div class="form-group" style="margin-top:24px;">
-        <label>Where is your audience?</label>
+        <label>Streaming Platforms</label>
         <div class="checkbox-group">
-          <label><input type="checkbox" id="aud-streaming" onchange="onAudienceTypeChange()"> Streaming Platforms</label>
-          <label><input type="checkbox" id="aud-live" onchange="onAudienceTypeChange()"> Live Performances</label>
+          <label><input type="checkbox" class="aud-platform" value="spotify" onchange="onAudienceChange()"> Spotify</label>
+          <label><input type="checkbox" class="aud-platform" value="instagram" onchange="onAudienceChange()"> Instagram</label>
+          <label><input type="checkbox" class="aud-platform" value="tiktok" onchange="onAudienceChange()"> TikTok</label>
+          <label><input type="checkbox" class="aud-platform" value="youtube" onchange="onAudienceChange()"> YouTube</label>
         </div>
       </div>
 
-      <!-- STEP 2B: Streaming -->
-      <div id="audience-streaming-size" class="form-group" style="display:none; margin-top:20px;">
+      <!-- Streaming Size -->
+      <div id="audience-streaming-size" class="form-group" style="display:none; margin-top:12px;">
         <label>Streaming Audience Size</label>
         <select id="streaming-size" class="sim-select" onchange="onAudienceChange()">
           <option value="">— Select size —</option>
@@ -139,8 +142,21 @@
         </select>
       </div>
 
-      <!-- STEP 2B: Live -->
-      <div id="audience-live-size" class="form-group" style="display:none; margin-top:20px;">
+      <!-- =========================
+           LIVE PERFORMANCE
+           ========================= -->
+      <div class="form-group" style="margin-top:28px;">
+        <label>Live Performances</label>
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" id="aud-live" onchange="onAudienceChange()">
+            Enable live shows
+          </label>
+        </div>
+      </div>
+
+      <!-- Live Size -->
+      <div id="audience-live-size" class="form-group" style="display:none; margin-top:12px;">
         <label>Venue Size</label>
         <select id="live-size" class="sim-select" onchange="onAudienceChange()">
           <option value="">— Select venue —</option>
@@ -149,14 +165,37 @@
           <option value="large">Large Venue (1K–5K)</option>
           <option value="arena">Arena (5K+)</option>
         </select>
+
+        <p class="slider-hint" style="margin-top:6px;">
+          Attendance depends on fan engagement
+        </p>
       </div>
 
-      <!-- STEP 2C -->
-      <div class="slider-group" style="margin-top:32px;">
-        <label>Fan Strength</label>
-        <input type="range" id="slider-fanstrength" min="0" max="100" step="10" value="50"
+      <!-- =========================
+           FAN ENGAGEMENT (EMPHASIZED)
+           ========================= -->
+      <div class="slider-group engagement-block" style="margin-top:32px;">
+        <label>🔥 Fan Engagement (Drives Attendance & Conversion)</label>
+
+        <input type="range"
+               id="slider-fanstrength"
+               min="0"
+               max="100"
+               step="10"
+               value="0"
                oninput="onAudienceChange()" />
-        <p class="slider-hint">How likely your audience is to spend money</p>
+
+        <div class="slider-ticks">
+          <span>Passive</span>
+          <span>Casual</span>
+          <span>Engaged</span>
+          <span>Core</span>
+          <span>Superfans</span>
+        </div>
+
+        <p class="slider-hint">
+          This determines how many fans actually show up and spend.
+        </p>
       </div>
 
     </div>
@@ -172,21 +211,21 @@
         </div>
 
         <div class="profile-stat">
-          <span>Total Reach</span>
+          <span>Estimated Monthly Reach</span>
           <strong id="profile-reach">—</strong>
         </div>
 
         <div class="profile-stat">
-          <span>Monetization Power</span>
-          <strong id="profile-power">—</strong>
+          <span>Fan Engagement</span>
+          <strong id="profile-engagement">—</strong>
         </div>
 
-       <div class="profile-stat" style="margin-top:16px;">
-  <span>How this works</span>
-  <div id="logic-output" style="font-size:13px; line-height:1.5; margin-top:6px;">
-    Select inputs to see how demand converts into income.
-  </div>
-</div>
+        <div class="profile-stat" style="margin-top:16px;">
+          <span>How this works</span>
+          <div id="logic-output" style="font-size:13px; line-height:1.5; margin-top:6px;">
+            Select inputs to see how demand converts into income.
+          </div>
+        </div>
 
       </div>
     </div>
@@ -198,7 +237,6 @@
     <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy →</button>
   </div>
 </section>
-
     <!-- ============================================================
          SCREEN 3: STRATEGY
          ============================================================ -->
@@ -425,118 +463,16 @@
   <script src="js/data.js"></script>
   <!-- Simulator logic -->
   <script src="js/simulator.js"></script>
-  <script>
-window.simState = window.simState || {};
-
-window.simState.audienceV2 = {
-  streamingEnabled: false,
-  liveEnabled: false,
-  streamingSize: null,
-  liveSize: null,
-  fanStrength: 50,
-  reach: 0
-};
-
-
-  function onAudienceTypeChange() {
-  const state = window.simState.audienceV2;
-
-  state.streamingEnabled = document.getElementById("aud-streaming").checked;
-  state.liveEnabled = document.getElementById("aud-live").checked;
-
-  document.getElementById("audience-streaming-size").style.display =
-    state.streamingEnabled ? "block" : "none";
-
-  document.getElementById("audience-live-size").style.display =
-    state.liveEnabled ? "block" : "none";
-
-  onAudienceChange();
-}
-
-function onAudienceChange() {
-  const state = window.simState.audienceV2;
-
-  state.streamingSize = document.getElementById("streaming-size").value;
-  state.liveSize = document.getElementById("live-size").value;
-  state.fanStrength = parseInt(document.getElementById("slider-fanstrength").value);
-
-  calculateAudienceReach();
-  updateAudienceUI();
-  updateLogicExplanation();
-
-  // 🔥 BRIDGE: connect new system → old system
-  S.fanStrength = state.fanStrength;
-
-  if (state.streamingSize) {
-    const tierMap = {
-      nano: 0,
-      micro: 1,
-      mid: 2,
-      macro: 3
-    };
-
-    S.audienceTier = tierMap[state.streamingSize];
-  }
-
-  // 🔥 trigger income + status bar
-  calcIncome();
-  updateStatusBar();
-}
-
-  function calculateAudienceReach() {
-  const state = window.simState.audienceV2;
-
-  let reach = 0;
-  let mix = [];
-
-  if (state.streamingEnabled && state.streamingSize) {
-    mix.push("Streaming");
-
-    const map = {
-      nano: 10000,
-      micro: 50000,
-      mid: 200000,
-      macro: 1000000
-    };
-
-    reach += map[state.streamingSize] || 0;
-  }
-
-  if (state.liveEnabled && state.liveSize) {
-    mix.push("Live");
-
-    const venueMap = {
-      small: 200,
-      medium: 700,
-      large: 3000,
-      arena: 10000
-    };
-
-    reach += (venueMap[state.liveSize] || 0) * 4;
-  }
-
-  state.reach = reach;
-  state.mix = mix;
-}
-
-  function updateAudienceUI() {
-  const state = window.simState.audienceV2;
-
-  document.getElementById("profile-mix").innerText =
-    state.mix && state.mix.length ? state.mix.join(" + ") : "—";
-
-  document.getElementById("profile-reach").innerText =
-    state.reach ? state.reach.toLocaleString() : "—";
-
-  document.getElementById("profile-power").innerText =
-    state.fanStrength > 70 ? "High" :
-    state.fanStrength > 40 ? "Moderate" : "Low";
-}
-
-  function updateLogicExplanation() {
+ <script>
+function updateLogicExplanation() {
   const el = document.getElementById("logic-output");
+  if (!el) return;
 
-  const streamingEnabled = document.getElementById('aud-streaming')?.checked;
+  const selectedPlatforms = Array.from(
+    document.querySelectorAll(".aud-platform:checked")
+  );
+
+  const streamingEnabled = selectedPlatforms.length > 0;
   const streamingSize = document.getElementById('streaming-size')?.value;
 
   const liveEnabled = document.getElementById('aud-live')?.checked;
@@ -546,11 +482,8 @@ function onAudienceChange() {
 
   let html = "";
 
-  
-
   // --- Streaming ---
-  if (streamingEnabled && streamingSize !== "") {
-
+  if (streamingEnabled && streamingSize) {
     const tierMap = {
       nano: "Nano",
       micro: "Micro",
@@ -560,7 +493,6 @@ function onAudienceChange() {
 
     const tierName = tierMap[streamingSize];
     const streams = TIER_STREAMS[tierName].mid;
-
     const engagedFans = Math.round(streams * fanMult);
 
     html += `
@@ -571,8 +503,7 @@ function onAudienceChange() {
   }
 
   // --- Live ---
-  if (liveEnabled && liveSize !== "") {
-
+  if (liveEnabled && liveSize) {
     const venue = LIVE_VENUES[liveSize];
 
     if (venue) {
@@ -588,19 +519,12 @@ function onAudienceChange() {
     }
   }
 
-  // --- Insight ---
   if (streamingEnabled && liveEnabled) {
-    html += `
-      <br><em>Streaming builds demand. Live shows convert it into revenue.</em>
-    `;
+    html += `<br><em>Streaming builds demand. Live shows convert it into revenue.</em>`;
   } else if (streamingEnabled) {
-    html += `
-      <br><em>You are building reach, but monetization is limited.</em>
-    `;
+    html += `<br><em>You are building reach, but monetization is limited.</em>`;
   } else if (liveEnabled) {
-    html += `
-      <br><em>You rely on direct fan conversion rather than scale.</em>
-    `;
+    html += `<br><em>You rely on direct fan conversion rather than scale.</em>`;
   }
 
   if (!html) {
@@ -609,9 +533,6 @@ function onAudienceChange() {
 
   el.innerHTML = html;
 }
-
-
-
-    </script>
+</script>
 </body>
 </html>
