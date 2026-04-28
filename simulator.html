@@ -56,7 +56,7 @@
 
         <!-- LEFT: City Selection -->
         <div class="sim-col-main">
-          <div class="kicker">Step 1 of 5</div>
+          <div class="kicker">Step 1 of 4</div>
           <h2 class="h2">Set Your City</h2>
           <p class="note">Your city sets your cost baseline — the minimum you need to survive.</p>
 
@@ -109,294 +109,304 @@
          SCREEN 2: AUDIENCE
          ============================================================ -->
     <section class="sim-screen" id="screen-2">
-      <div class="sim-two-col">
+  <div class="sim-two-col">
 
-        <!-- LEFT: Sliders -->
-        <div class="sim-col-main">
-          <div class="kicker">Step 2 of 5</div>
-          <h2 class="h2">Define Your Audience</h2>
-          <p class="note">Your audience size and loyalty determine what income strategies are available to you.</p>
+    <!-- LEFT: Audience Builder -->
+    <div class="sim-col-main">
+      <div class="kicker">Step 2 of 5</div>
+      <h2 class="h2">Define Your Audience</h2>
+      <p class="note">Your audience doesn’t just define how many people hear your music - it determines how you make money.</p>
+    
+      
+      <!-- STEP 2A -->
+      <div class="form-group" style="margin-top:24px;">
+        <label>Where is your audience?</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="aud-streaming" onchange="onAudienceTypeChange()"> Streaming Platforms</label>
+          <label><input type="checkbox" id="aud-live" onchange="onAudienceTypeChange()"> Live Performances</label>
+        </div>
+      </div>
 
-          <div class="slider-group">
-            <label>Audience Size</label>
-            <div class="slider-labels">
-              <span>Nano</span><span>Micro</span><span>Mid</span><span>Macro</span>
-            </div>
-            <input type="range" id="slider-audience" min="0" max="3" step="1" value="0"
-                   oninput="onAudienceChange()" />
-            <p class="slider-hint" id="hint-audience">5K–20K monthly listeners</p>
-          </div>
+      <!-- STEP 2B: Streaming -->
+      <div id="audience-streaming-size" class="form-group" style="display:none; margin-top:20px;">
+        <label>Streaming Audience Size</label>
+        <select id="streaming-size" class="sim-select" onchange="onAudienceChange()">
+          <option value="">— Select size —</option>
+          <option value="nano">Nano (5K–20K)</option>
+          <option value="micro">Micro (20K–100K)</option>
+          <option value="mid">Mid (100K–500K)</option>
+          <option value="macro">Macro (500K+)</option>
+        </select>
+      </div>
 
-          <div class="slider-group" style="margin-top:32px;">
-            <label>Fan Strength (Monetization)</label>
-            <div class="slider-labels">
-              <span>Weak</span><span></span><span></span><span>Strong</span>
-            </div>
-            <input type="range" id="slider-fanstrength" min="0" max="100" step="10" value="50"
-                   oninput="onAudienceChange()" />
-            <p class="slider-hint" id="hint-fanstrength">How likely fans are to spend money</p>
-          </div>
+      <!-- STEP 2B: Live -->
+      <div id="audience-live-size" class="form-group" style="display:none; margin-top:20px;">
+        <label>Venue Size</label>
+        <select id="live-size" class="sim-select" onchange="onAudienceChange()">
+          <option value="">— Select venue —</option>
+          <option value="small">Small Club (100–300)</option>
+          <option value="medium">Mid Venue (300–1K)</option>
+          <option value="large">Large Venue (1K–5K)</option>
+          <option value="arena">Arena (5K+)</option>
+        </select>
+      </div>
+
+      <!-- STEP 2C -->
+      <div class="slider-group" style="margin-top:32px;">
+        <label>Fan Strength</label>
+        <input type="range" id="slider-fanstrength" min="0" max="100" step="10" value="50"
+               oninput="onAudienceChange()" />
+        <p class="slider-hint">How likely your audience is to spend money</p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Profile -->
+    <div class="sim-col-side">
+      <div class="side-panel">
+        <h3>Your Artist Profile</h3>
+
+        <div class="profile-stat">
+          <span>Audience Mix</span>
+          <strong id="profile-mix">—</strong>
         </div>
 
-        <!-- RIGHT: Live Feedback -->
-        <div class="sim-col-side">
-          <div class="side-panel">
-            <h3>Your Artist Profile</h3>
-            <div class="profile-stat">
-              <span>Artist Type</span>
-              <strong id="profile-type">—</strong>
-            </div>
-            <div class="profile-stat">
-              <span>Suggested Venue</span>
-              <strong id="profile-venue">—</strong>
-            </div>
-            <div class="profile-stat">
-              <span>Streaming Tier</span>
-              <strong id="profile-tier">—</strong>
-            </div>
-            <div class="profile-stat">
-              <span>Est. Monthly Streams</span>
-              <strong id="profile-streams">—</strong>
-            </div>
-            <div class="sim-warning" id="warning-audience" style="display:none;"></div>
-          </div>
+        <div class="profile-stat">
+          <span>Total Reach</span>
+          <strong id="profile-reach">—</strong>
         </div>
 
+        <div class="profile-stat">
+          <span>Monetization Power</span>
+          <strong id="profile-power">—</strong>
+        </div>
+
+       <div class="profile-stat" style="margin-top:16px;">
+  <span>How this works</span>
+  <div id="logic-output" style="font-size:13px; line-height:1.5; margin-top:6px;">
+    Select inputs to see how demand converts into income.
+  </div>
+</div>
+
       </div>
-      <div class="sim-nav">
-        <button class="btn btn-secondary" onclick="goTo(1)">← Back</button>
-        <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy →</button>
-      </div>
-    </section>
+    </div>
+
+  </div>
+
+  <div class="sim-nav">
+    <button class="btn btn-secondary" onclick="goTo(1)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy →</button>
+  </div>
+</section>
 
     <!-- ============================================================
          SCREEN 3: STRATEGY
          ============================================================ -->
-    <section class="sim-screen" id="screen-3">
-      <div class="sim-two-col">
+   <section class="sim-screen" id="screen-3">
+  <div class="sim-two-col">
 
-        <!-- LEFT: Strategy Sliders -->
-        <div class="sim-col-main">
-          <div class="kicker">Step 3 of 5</div>
-          <h2 class="h2">Choose Your Strategy</h2>
-          <p class="note">How do you make money? Adjust each lever to weight your income model.</p>
+    <!-- LEFT: Controls -->
+    <div class="sim-col-main">
+      <div class="kicker">Step 3 of 5</div>
+      <h2 class="h2">Tune Your Income Engines</h2>
 
-          <div class="strategy-slider-row">
-            <div class="strategy-icon">🎵</div>
-            <div class="strategy-content">
-              <label>Streaming</label>
-              <p class="micro">Release music, playlists, catalog growth</p>
-              <input type="range" id="strat-streaming" min="1" max="10" step="1" value="5"
-                     oninput="onStrategyChange()" />
-              <span class="strat-value" id="val-streaming">5</span>
-            </div>
-          </div>
+      <p class="note">
+        This is where your audience turns into income.
+      </p>
 
-          <div class="strategy-slider-row">
-            <div class="strategy-icon">📱</div>
-            <div class="strategy-content">
-              <label>Social Media</label>
-              <p class="micro">Content creation, brand deals, platform growth</p>
-              <input type="range" id="strat-social" min="1" max="10" step="1" value="5"
-                     oninput="onStrategyChange()" />
-              <span class="strat-value" id="val-social">5</span>
-            </div>
-          </div>
+      <p class="note">
+        Streaming builds reach. Touring generates revenue. Merch amplifies fan spending.
+      </p>
 
-          <div class="strategy-slider-row">
-            <div class="strategy-icon">🎤</div>
-            <div class="strategy-content">
-              <label>Touring</label>
-              <p class="micro">Shows, tours, live fan conversion</p>
-              <input type="range" id="strat-touring" min="1" max="10" step="1" value="5"
-                     oninput="onStrategyChange()" />
-              <span class="strat-value" id="val-touring">5</span>
-            </div>
-          </div>
+      <!-- =========================
+           TOURING (PRIMARY DRIVER)
+           ========================= -->
+      <div class="form-group">
+        <label>🎤 Touring Intensity</label>
+        <p class="micro">Live shows are your most direct source of income</p>
 
-          <div class="strategy-slider-row">
-            <div class="strategy-icon">👕</div>
-            <div class="strategy-content">
-              <label>Merch</label>
-              <p class="micro">Direct-to-fan product sales</p>
-              <input type="range" id="strat-merch" min="1" max="10" step="1" value="5"
-                     oninput="onStrategyChange()" />
-              <span class="strat-value" id="val-merch">5</span>
-            </div>
-          </div>
+        <!-- Shows per month -->
+        <div class="slider-group">
+          <label>Shows per Month</label>
+          <input type="range" id="slider-shows" min="1" max="20" value="4"
+                 oninput="onTouringChange()" />
+          <p class="slider-hint">How often you perform</p>
         </div>
 
-        <!-- RIGHT: System Reaction -->
-        <div class="sim-col-side">
-          <div class="side-panel">
-            <h3>System Reaction</h3>
-            <div class="reaction-message" id="reaction-message">
-              Adjust the sliders to see how your strategy shapes your income.
-            </div>
-            <div style="margin-top:24px;">
-              <h4>Strategy Weights</h4>
-              <canvas id="chart-strategy" width="200" height="200"></canvas>
-            </div>
-          </div>
-        </div>
-
-      </div>
-      <div class="sim-nav">
-        <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
-        <button class="btn btn-primary" onclick="goTo(4)">Next: Activate Income →</button>
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SCREEN 4: INCOME ENGINES
-         ============================================================ -->
-    <section class="sim-screen" id="screen-4">
-      <div class="kicker">Step 4 of 5</div>
-      <h2 class="h2">Activate Your Income Engines</h2>
-      <p class="note">Fine-tune each income stream. The math updates live.</p>
-
-      <div class="engines-grid">
-
-        <!-- Engine A: Streaming -->
-        <div class="engine-card">
-          <div class="engine-header">🎵 Streaming</div>
-          <div class="engine-body">
-            <div class="engine-stat"><span>Platform</span><strong>Spotify</strong></div>
-            <div class="engine-stat"><span>Tier</span><strong id="eng-stream-tier">—</strong></div>
-            <div class="engine-stat"><span>Monthly Streams</span><strong id="eng-stream-count">—</strong></div>
-            <div class="engine-stat"><span>CPM Rate</span><strong id="eng-stream-cpm">—</strong></div>
-            <div class="engine-income"><span>Monthly Income</span><strong id="eng-stream-income">—</strong></div>
-          </div>
-        </div>
-
-        <!-- Engine B: Social -->
-        <div class="engine-card">
-          <div class="engine-header">📱 Social Media</div>
-          <div class="engine-body">
-            <div class="engine-stat"><span>Best Platform</span><strong id="eng-social-platform">—</strong></div>
-            <div class="engine-stat"><span>Monthly Reach</span><strong id="eng-social-reach">—</strong></div>
-            <div class="engine-stat"><span>CPM Rate</span><strong id="eng-social-cpm">—</strong></div>
-            <div class="engine-income"><span>Monthly Income</span><strong id="eng-social-income">—</strong></div>
-          </div>
-        </div>
-
-        <!-- Engine C: Touring -->
-        <div class="engine-card">
-          <div class="engine-header">🎤 Touring</div>
-          <div class="engine-body">
-            <div class="engine-stat"><span>Venue Type</span><strong id="eng-tour-venue">—</strong></div>
-            <div class="engine-stat"><span>Capacity</span><strong id="eng-tour-cap">—</strong></div>
-            <div class="engine-stat"><span>Ticket Price</span><strong id="eng-tour-ticket">—</strong></div>
-            <div class="form-group" style="margin-top:12px;">
-              <label>Shows per month: <strong id="val-shows">4</strong></label>
-              <input type="range" id="slider-shows" min="1" max="20" value="4"
-                     oninput="onTouringChange()" />
-            </div>
-            <div class="form-group">
-              <label>Artist cut: <strong id="val-cut">15</strong>%</label>
-              <input type="range" id="slider-cut" min="10" max="30" value="15"
-                     oninput="onTouringChange()" />
-            </div>
-            <div class="engine-income"><span>Monthly Income</span><strong id="eng-tour-income">—</strong></div>
-          </div>
-        </div>
-
-        <!-- Engine D: Merch -->
-        <div class="engine-card">
-          <div class="engine-header">👕 Merch</div>
-          <div class="engine-body">
-            <div class="form-group">
-              <label>Attach Rate: <strong id="val-attach">10</strong>%</label>
-              <input type="range" id="slider-attach" min="1" max="30" value="10"
-                     oninput="onMerchChange()" />
-            </div>
-            <div class="merch-toggles">
-              <label><input type="checkbox" id="merch-tshirt" checked onchange="onMerchChange()"> T-Shirt ($30)</label>
-              <label><input type="checkbox" id="merch-vinyl" onchange="onMerchChange()"> Vinyl LP ($31)</label>
-              <label><input type="checkbox" id="merch-hoodie" onchange="onMerchChange()"> Hoodie ($60)</label>
-            </div>
-            <div class="engine-stat"><span>Based on show attendance</span><strong id="eng-merch-attendance">—</strong></div>
-            <div class="engine-income"><span>Monthly Income</span><strong id="eng-merch-income">—</strong></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Total Income Summary -->
-      <div class="income-summary" id="income-summary">
-        <div class="income-summary-inner">
-          <div class="income-item"><span>🎵 Streaming</span><strong id="sum-streaming">$0</strong></div>
-          <div class="income-item"><span>📱 Social</span><strong id="sum-social">$0</strong></div>
-          <div class="income-item"><span>🎤 Touring</span><strong id="sum-touring">$0</strong></div>
-          <div class="income-item"><span>👕 Merch</span><strong id="sum-merch">$0</strong></div>
-          <div class="income-item total"><span>Total Monthly</span><strong id="sum-total">$0</strong></div>
-          <div class="income-item"><span>Cost of Living</span><strong id="sum-cost">$0</strong></div>
-          <div class="income-item"><span>Net</span><strong id="sum-net">$0</strong></div>
+        <!-- Artist cut -->
+        <div class="slider-group">
+          <label>Artist Cut (%)</label>
+          <input type="range" id="slider-cut" min="10" max="30" value="15"
+                 oninput="onTouringChange()" />
+          <p class="slider-hint">Your share of ticket revenue</p>
         </div>
       </div>
 
-      <div class="sim-nav">
-        <button class="btn btn-secondary" onclick="goTo(3)">← Back</button>
-        <button class="btn btn-primary" onclick="goTo(5)">See Your Results →</button>
-      </div>
-    </section>
+      <!-- =========================
+           MERCH (CONVERSION LAYER)
+           ========================= -->
+      <div class="form-group">
+        <label>👕 Fan Monetization</label>
+        <p class="micro">How well you convert fans into paying customers</p>
 
-    <!-- ============================================================
-         SCREEN 5: RESULTS
-         ============================================================ -->
-    <section class="sim-screen" id="screen-5">
-      <div class="kicker">Your Results</div>
-      <h2 class="h2">Viability Report</h2>
-
-      <!-- Verdict Banner -->
-      <div class="verdict-banner" id="verdict-banner">
-        <div class="verdict-income" id="verdict-income">$0 / mo</div>
-        <div class="verdict-status" id="verdict-status">—</div>
-        <div class="verdict-delta" id="verdict-delta">—</div>
-      </div>
-
-      <div class="results-grid">
-
-        <!-- LEFT: Income Breakdown -->
-        <div class="results-col">
-          <h3>Income Breakdown</h3>
-          <div class="result-card"><span>🎵 Streaming</span><strong id="res-streaming">—</strong></div>
-          <div class="result-card"><span>📱 Social Media</span><strong id="res-social">—</strong></div>
-          <div class="result-card"><span>🎤 Touring</span><strong id="res-touring">—</strong></div>
-          <div class="result-card"><span>👕 Merch</span><strong id="res-merch">—</strong></div>
-          <div class="result-card total"><span>Total</span><strong id="res-total">—</strong></div>
-          <div class="result-card"><span>Cost of Living</span><strong id="res-cost">—</strong></div>
-          <div class="result-card"><span>Net Monthly</span><strong id="res-net">—</strong></div>
-        </div>
-
-        <!-- RIGHT: Income Mix Chart -->
-        <div class="results-col">
-          <h3>Income Mix</h3>
-          <canvas id="chart-income-mix" width="300" height="300"></canvas>
-        </div>
-
-      </div>
-
-      <!-- Growth Curve -->
-      <div class="results-section">
-        <h3>Income vs Audience Growth</h3>
-        <canvas id="chart-growth" width="600" height="250"></canvas>
-      </div>
-
-      <!-- What It Would Take -->
-      <div class="results-section">
-        <h3>What It Would Take</h3>
-        <div class="what-it-takes" id="what-it-takes">
-          <!-- Populated by JS -->
+        <div class="slider-group">
+          <label>Merch Attach Rate (%)</label>
+          <input type="range" id="slider-attach" min="1" max="30" value="10"
+                 oninput="onMerchChange()" />
+          <p class="slider-hint">% of fans who buy something</p>
         </div>
       </div>
 
-      <!-- Persona -->
-      <div class="results-section">
-        <div class="persona-card" id="persona-card">
-          <!-- Populated by JS -->
+      <!-- =========================
+           STREAMING (SCALE ENGINE)
+           ========================= -->
+      <div class="form-group">
+        <label>🎵 Streaming Strategy</label>
+        <p class="micro">How aggressively you grow your audience</p>
+
+        <div class="slider-group">
+          <label>Release Activity</label>
+          <input type="range" id="strat-streaming" min="1" max="10" value="5"
+                 oninput="onStrategyChange()" />
+          <p class="slider-hint">Frequency of releases and content</p>
         </div>
       </div>
+
+    </div>
+
+    <!-- RIGHT: System Feedback -->
+<div class="sim-col-side">
+  <div class="side-panel strategy-panel">
+
+    <!-- Top Summary Cards -->
+    <div class="strategy-cards">
+
+      <div class="strategy-card">
+        <div class="card-title">🎤 Touring Focus</div>
+        <div class="card-value high" id="profile-touring-focus">—</div>
+        <div class="card-desc">Live show driven income</div>
+      </div>
+
+      <div class="strategy-card">
+        <div class="card-title">👕 Fan Monetization</div>
+        <div class="card-value weak" id="profile-merch-focus">—</div>
+        <div class="card-desc">Merch conversion strength</div>
+      </div>
+
+      <div class="strategy-card">
+        <div class="card-title">🎵 Growth Strategy</div>
+        <div class="card-value balanced" id="profile-streaming-focus">—</div>
+        <div class="card-desc">Audience growth focus</div>
+      </div>
+
+    </div>
+
+    <!-- Explanation -->
+    <div class="insight-box">
+      <strong>What This Means</strong>
+      <p id="reaction-message">
+        Adjust your inputs to see how your income model shifts.
+      </p>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Income Breakdown -->
+    <div class="income-section">
+      <h4>Income Breakdown</h4>
+
+      <div class="income-chart-row">
+        <canvas id="chart-income" width="180" height="180"></canvas>
+
+        <div class="income-legend">
+          <div><span class="dot streaming"></span> Streaming</div>
+          <div><span class="dot touring"></span> Touring</div>
+          <div><span class="dot merch"></span> Merch</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  
+
+  <div class="sim-nav">
+    <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(4)">Next: See Your Results</button>
+  </div>
+</section>
+
+   <!-- ============================================================
+     SCREEN 4: VIABILITY REPORT
+     ============================================================ -->
+<section class="sim-screen" id="screen-4">
+  <div class="kicker">Step 4 of 4</div>
+  <h2 class="h2">Your Viability Report</h2>
+  <p class="note">
+    This is the outcome of your strategy — how your audience converts into income.
+  </p>
+
+  <!-- =========================
+       HEADLINE RESULT
+       ========================= -->
+  <div class="verdict-banner" id="verdict-banner">
+    <div class="verdict-income" id="verdict-income">$0 / mo</div>
+    <div class="verdict-status" id="verdict-status">—</div>
+    <div class="verdict-delta" id="verdict-delta">—</div>
+  </div>
+
+  <div class="results-grid">
+
+    <!-- LEFT: Strategy + Profile -->
+    <div class="results-col">
+
+      <h3>Your Strategy</h3>
+      <div class="result-card"><span>🎤 Touring</span><strong id="res-strategy-touring">—</strong></div>
+      <div class="result-card"><span>👕 Merch</span><strong id="res-strategy-merch">—</strong></div>
+      <div class="result-card"><span>🎵 Streaming</span><strong id="res-strategy-streaming">—</strong></div>
+
+      <div class="results-section" style="margin-top:24px;">
+        <h3>Your Artist Profile</h3>
+        <div class="persona-card" id="persona-card"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Income + Chart -->
+    <div class="results-col">
+
+      <h3>Income Breakdown</h3>
+      <canvas id="chart-income" width="260" height="260"></canvas>
+
+      <div class="result-card"><span>🎵 Streaming</span><strong id="res-streaming">—</strong></div>
+      <div class="result-card"><span>🎤 Touring</span><strong id="res-touring">—</strong></div>
+      <div class="result-card"><span>👕 Merch</span><strong id="res-merch">—</strong></div>
+      <div class="result-card total"><span>Total</span><strong id="res-total">—</strong></div>
+
+      <div class="result-card"><span>Cost of Living</span><strong id="res-cost">—</strong></div>
+      <div class="result-card"><span>Net</span><strong id="res-net">—</strong></div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       RECOMMENDATIONS
+       ========================= -->
+  <div class="results-section">
+    <h3>How to Improve Your Income</h3>
+    <div id="recommendations-list"></div>
+  </div>
+
+  <!-- NAV -->
+  <div class="sim-nav">
+    <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
+    <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
+  </div>
+
+
 
       <!-- CTAs -->
       <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
@@ -415,6 +425,193 @@
   <script src="js/data.js"></script>
   <!-- Simulator logic -->
   <script src="js/simulator.js"></script>
+  <script>
+window.simState = window.simState || {};
 
+window.simState.audienceV2 = {
+  streamingEnabled: false,
+  liveEnabled: false,
+  streamingSize: null,
+  liveSize: null,
+  fanStrength: 50,
+  reach: 0
+};
+
+
+  function onAudienceTypeChange() {
+  const state = window.simState.audienceV2;
+
+  state.streamingEnabled = document.getElementById("aud-streaming").checked;
+  state.liveEnabled = document.getElementById("aud-live").checked;
+
+  document.getElementById("audience-streaming-size").style.display =
+    state.streamingEnabled ? "block" : "none";
+
+  document.getElementById("audience-live-size").style.display =
+    state.liveEnabled ? "block" : "none";
+
+  onAudienceChange();
+}
+
+function onAudienceChange() {
+  const state = window.simState.audienceV2;
+
+  state.streamingSize = document.getElementById("streaming-size").value;
+  state.liveSize = document.getElementById("live-size").value;
+  state.fanStrength = parseInt(document.getElementById("slider-fanstrength").value);
+
+  calculateAudienceReach();
+  updateAudienceUI();
+  updateLogicExplanation();
+
+  // 🔥 BRIDGE: connect new system → old system
+  S.fanStrength = state.fanStrength;
+
+  if (state.streamingSize) {
+    const tierMap = {
+      nano: 0,
+      micro: 1,
+      mid: 2,
+      macro: 3
+    };
+
+    S.audienceTier = tierMap[state.streamingSize];
+  }
+
+  // 🔥 trigger income + status bar
+  calcIncome();
+  updateStatusBar();
+}
+
+  function calculateAudienceReach() {
+  const state = window.simState.audienceV2;
+
+  let reach = 0;
+  let mix = [];
+
+  if (state.streamingEnabled && state.streamingSize) {
+    mix.push("Streaming");
+
+    const map = {
+      nano: 10000,
+      micro: 50000,
+      mid: 200000,
+      macro: 1000000
+    };
+
+    reach += map[state.streamingSize] || 0;
+  }
+
+  if (state.liveEnabled && state.liveSize) {
+    mix.push("Live");
+
+    const venueMap = {
+      small: 200,
+      medium: 700,
+      large: 3000,
+      arena: 10000
+    };
+
+    reach += (venueMap[state.liveSize] || 0) * 4;
+  }
+
+  state.reach = reach;
+  state.mix = mix;
+}
+
+  function updateAudienceUI() {
+  const state = window.simState.audienceV2;
+
+  document.getElementById("profile-mix").innerText =
+    state.mix && state.mix.length ? state.mix.join(" + ") : "—";
+
+  document.getElementById("profile-reach").innerText =
+    state.reach ? state.reach.toLocaleString() : "—";
+
+  document.getElementById("profile-power").innerText =
+    state.fanStrength > 70 ? "High" :
+    state.fanStrength > 40 ? "Moderate" : "Low";
+}
+
+  function updateLogicExplanation() {
+  const el = document.getElementById("logic-output");
+
+  const streamingEnabled = document.getElementById('aud-streaming')?.checked;
+  const streamingSize = document.getElementById('streaming-size')?.value;
+
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+  const liveSize = document.getElementById('live-size')?.value;
+
+  const fanMult = S.fanStrength / 100;
+
+  let html = "";
+
+  
+
+  // --- Streaming ---
+  if (streamingEnabled && streamingSize !== "") {
+
+    const tierMap = {
+      nano: "Nano",
+      micro: "Micro",
+      mid: "Mid",
+      macro: "Macro"
+    };
+
+    const tierName = tierMap[streamingSize];
+    const streams = TIER_STREAMS[tierName].mid;
+
+    const engagedFans = Math.round(streams * fanMult);
+
+    html += `
+      <strong>Streaming</strong><br>
+      ${streams.toLocaleString()} listeners<br>
+      → ${engagedFans.toLocaleString()} engaged fans<br>
+    `;
+  }
+
+  // --- Live ---
+  if (liveEnabled && liveSize !== "") {
+
+    const venue = LIVE_VENUES[liveSize];
+
+    if (venue) {
+      const attendanceRate = 0.4 + (fanMult * 0.5);
+      const attendance = Math.round(venue.cap * attendanceRate);
+
+      html += `
+        <br>
+        <strong>Live</strong><br>
+        ${venue.cap} capacity venue<br>
+        → ${attendance} expected attendees<br>
+      `;
+    }
+  }
+
+  // --- Insight ---
+  if (streamingEnabled && liveEnabled) {
+    html += `
+      <br><em>Streaming builds demand. Live shows convert it into revenue.</em>
+    `;
+  } else if (streamingEnabled) {
+    html += `
+      <br><em>You are building reach, but monetization is limited.</em>
+    `;
+  } else if (liveEnabled) {
+    html += `
+      <br><em>You rely on direct fan conversion rather than scale.</em>
+    `;
+  }
+
+  if (!html) {
+    html = "Select inputs to see how demand converts into income.";
+  }
+
+  el.innerHTML = html;
+}
+
+
+
+    </script>
 </body>
 </html>

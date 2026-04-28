@@ -69,6 +69,13 @@ const ARTIST_TYPES = {
   Macro: 'Major Artist'
 };
 
+  const LIVE_VENUES = {
+  small:  { cap: 200,   price: 30 },
+  medium: { cap: 700,   price: 60 },
+  large:  { cap: 3000,  price: 90 },
+  arena:  { cap: 10000, price: 120 }
+};
+
 // Chart instances (so we can destroy/recreate on updates)
 let chartStrategy  = null;
 let chartIncomeMix = null;
@@ -160,173 +167,379 @@ function onCityChange() {
 // =============================================================
 
 function onAudienceChange() {
-  S.audienceTier = parseInt(document.getElementById('slider-audience').value);
-  S.fanStrength  = parseInt(document.getElementById('slider-fanstrength').value);
+  S.fanStrength = parseInt(document.getElementById('slider-fanstrength').value);
+
+  const streamingEnabled = document.getElementById('aud-streaming').checked;
+  const liveEnabled = document.getElementById('aud-live').checked;
+
+  const streamingSize = document.getElementById('streaming-size').value;
+  const liveSize = document.getElementById('live-size').value;
+
+  let reach = 0;
+  let mix = [];
+
+  // 🔥 HARD RESET (prevents old values sticking)
+  S.audienceTier = null;
+
+  // 🔥 STOP EARLY — nothing selected
+  if (!streamingEnabled || streamingSize === "") {
+
+    document.getElementById("profile-mix").innerText = '—';
+    document.getElementById("profile-reach").innerText = '—';
+
+    document.getElementById('hint-audience').textContent = '—';
+    document.getElementById('profile-type').textContent = '—';
+    document.getElementById('profile-venue').textContent = '—';
+    document.getElementById('profile-tier').textContent = '—';
+    document.getElementById('profile-streams').textContent = '—';
+
+    document.getElementById('hint-fanstrength').textContent =
+      'Fan strength: ' + S.fanStrength + '%';
+
+    updateStatusBar();
+    return;
+  }
+
+  // --- Streaming (ONLY runs when valid) ---
+  const tierMap = {
+    nano: 0,
+    micro: 1,
+    mid: 2,
+    macro: 3
+  };
+
+  const reachMap = {
+    nano: 10000,
+    micro: 50000,
+    mid: 200000,
+    macro: 1000000
+  };
+
+  S.audienceTier = tierMap[streamingSize];
+  reach += reachMap[streamingSize];
+  mix.push("Streaming");
+
+  // --- Live ---
+  if (liveEnabled && liveSize !== "") {
+    const venueMap = {
+      small: 200,
+      medium: 700,
+      large: 3000,
+      arena: 10000
+    };
+
+    reach += venueMap[liveSize] * 4;
+    mix.push("Live");
+  }
+
+  // --- UI updates ---
+  document.getElementById("profile-mix").innerText = mix.join(" + ");
+  document.getElementById("profile-reach").innerText = reach.toLocaleString();
 
   const tierName = TIER_NAMES[S.audienceTier];
-  const streams  = TIER_STREAMS[tierName];
-  const venue    = VENUE_TYPES[tierName];
 
-  document.getElementById('hint-audience').textContent      = TIER_HINTS[tierName];
-  document.getElementById('hint-fanstrength').textContent   = 'Fan strength: ' + S.fanStrength + '%';
-  document.getElementById('profile-type').textContent       = ARTIST_TYPES[tierName];
-  document.getElementById('profile-venue').textContent      = venue.label;
-  document.getElementById('profile-tier').textContent       = tierName;
-  document.getElementById('profile-streams').textContent    = streams.mid.toLocaleString();
+  document.getElementById('hint-fanstrength').textContent =
+    'Fan strength: ' + S.fanStrength + '%';
 
-  // Warning states
+  const streams = TIER_STREAMS[tierName];
+  const venue = VENUE_TYPES[tierName];
+
+  document.getElementById('hint-audience').textContent = TIER_HINTS[tierName];
+  document.getElementById('profile-type').textContent = ARTIST_TYPES[tierName];
+  document.getElementById('profile-venue').textContent = venue.label;
+  document.getElementById('profile-tier').textContent = tierName;
+  document.getElementById('profile-streams').textContent =
+    streams.mid.toLocaleString();
+
+  // --- Warnings ---
   const warning = document.getElementById('warning-audience');
   if (S.audienceTier >= 2 && S.fanStrength < 30) {
     warning.style.display = 'block';
-    warning.textContent   = '⚠️ High streams but weak fan strength — you\'re visible but not monetizing.';
+    warning.textContent = '⚠️ High streams but weak fan strength — you\'re visible but not monetizing.';
   } else if (S.audienceTier <= 1 && S.fanStrength > 70) {
     warning.style.display = 'block';
-    warning.textContent   = '⚠️ Strong fans but small audience — focus on converting your core.';
+    warning.textContent = '⚠️ Strong fans but small audience — focus on converting your core.';
   } else {
     warning.style.display = 'none';
   }
 
+  // --- calculate ---
+
   updateStatusBar();
 }
 
 // =============================================================
-//  SCREEN 3: STRATEGY HANDLERS
+//  SCREEN 3: Income Engine HANDLERS
 // =============================================================
 
 function onStrategyChange() {
-  S.strategy.streaming = parseInt(document.getElementById('strat-streaming').value);
-  S.strategy.social    = parseInt(document.getElementById('strat-social').value);
-  S.strategy.touring   = parseInt(document.getElementById('strat-touring').value);
-  S.strategy.merch     = parseInt(document.getElementById('strat-merch').value);
+  S.streamingActivity = parseInt(document.getElementById('strat-streaming')?.value || 5);
 
-  // Update value labels
-  document.getElementById('val-streaming').textContent = S.strategy.streaming;
-  document.getElementById('val-social').textContent    = S.strategy.social;
-  document.getElementById('val-touring').textContent   = S.strategy.touring;
-  document.getElementById('val-merch').textContent     = S.strategy.merch;
+  const el = document.getElementById('val-streaming');
+  if (el) {
+    el.textContent = S.streamingActivity;
+  }
 
-  // System reaction message
-  const msg    = document.getElementById('reaction-message');
-  const maxKey = Object.entries(S.strategy).sort((a,b) => b[1]-a[1])[0][0];
-  const reactions = {
-    streaming: '🎵 You\'re prioritizing reach over revenue. Streaming builds visibility, but income is slow.',
-    social:    '📱 Social-heavy strategy means income depends on brand deals and CPM — high variance.',
-    touring:   '🎤 Touring-heavy strategy increases income but also volatility. Make sure your audience can fill venues.',
-    merch:     '👕 Merch works best with strong fan loyalty and consistent live touchpoints.'
-  };
-  msg.textContent = reactions[maxKey];
-
-  // Update strategy chart
-  updateStrategyChart();
+  calcIncome();
+  updateStatusBar();
+  updateStrategyFeedback();
+  updateIncomeChart();
 }
 
-function updateStrategyChart() {
-  const ctx = document.getElementById('chart-strategy').getContext('2d');
-  if (chartStrategy) chartStrategy.destroy();
 
-  chartStrategy = new Chart(ctx, {
-    type: 'bar',
+function onTouringChange() {
+  S.showsPerMonth = parseInt(document.getElementById('slider-shows')?.value || 4);
+  S.artistCut     = parseInt(document.getElementById('slider-cut')?.value || 15);
+
+  const showsEl = document.getElementById('val-shows');
+  const cutEl   = document.getElementById('val-cut');
+
+  if (showsEl) showsEl.textContent = S.showsPerMonth;
+  if (cutEl)   cutEl.textContent   = S.artistCut + "%";
+
+  calcIncome();
+  updateStatusBar();
+  updateStrategyFeedback();
+  updateIncomeChart();
+}
+
+
+function onMerchChange() {
+  S.attachRate = parseInt(document.getElementById('slider-attach')?.value || 10);
+
+  const attachEl = document.getElementById('val-attach');
+  if (attachEl) attachEl.textContent = S.attachRate + "%";
+
+  S.merchItems = [];
+  if (document.getElementById('merch-tshirt')?.checked) S.merchItems.push('tshirt');
+  if (document.getElementById('merch-vinyl')?.checked)  S.merchItems.push('vinyl');
+  if (document.getElementById('merch-hoodie')?.checked) S.merchItems.push('hoodie');
+
+  calcIncome();
+  updateStatusBar();
+  updateStrategyFeedback();
+  updateIncomeChart();
+}
+
+function updateIncomeChart() {
+  const canvas = document.getElementById('chart-income');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+
+  if (window.chartIncome) {
+    window.chartIncome.destroy();
+  }
+
+  const values = [
+    S.income.streaming,
+    S.income.touring,
+    S.income.merch
+  ];
+
+  const total = values.reduce((a, b) => a + b, 0);
+
+  const safeValues = total === 0 ? [1, 1, 1] : values;
+
+  window.chartIncome = new Chart(ctx, {
+    type: 'pie',
     data: {
-      labels: ['Streaming', 'Social', 'Touring', 'Merch'],
+      labels: ['Streaming', 'Touring', 'Merch'],
       datasets: [{
-        label: 'Strategy Weight',
-        data: [
-          S.strategy.streaming,
-          S.strategy.social,
-          S.strategy.touring,
-          S.strategy.merch
-        ],
-        backgroundColor: ['#6366f1','#8b5cf6','#ec4899','#f59e0b']
+        data: safeValues,
+        backgroundColor: [
+          '#6366f1',
+          '#10b981',
+          '#f59e0b'
+        ]
       }]
     },
     options: {
       responsive: false,
-      scales: { y: { min: 0, max: 10 } },
-      plugins: { legend: { display: false } }
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
     }
   });
 }
 
-// =============================================================
-//  SCREEN 4: INCOME ENGINE HANDLERS
-// =============================================================
+function updateStrategyFeedback() {
+  const msg = document.getElementById('reaction-message');
+  const touringEl = document.getElementById('profile-touring-focus');
+  const merchEl = document.getElementById('profile-merch-focus');
+  const streamingEl = document.getElementById('profile-streaming-focus');
 
-function onTouringChange() {
-  S.showsPerMonth = parseInt(document.getElementById('slider-shows').value);
-  S.artistCut     = parseInt(document.getElementById('slider-cut').value);
-  document.getElementById('val-shows').textContent = S.showsPerMonth;
-  document.getElementById('val-cut').textContent   = S.artistCut;
-  calcIncome();
-  populateEngines();
-  updateStatusBar();
+  // Guard: if elements aren't on screen yet, do nothing
+  if (!msg || !touringEl || !merchEl || !streamingEl) return;
+
+  // --- Touring ---
+  let touringLevel = "Low";
+  if (S.showsPerMonth > 10) touringLevel = "High";
+  else if (S.showsPerMonth > 5) touringLevel = "Moderate";
+
+  // --- Merch ---
+  let merchLevel = "Weak";
+  if (S.attachRate > 20) merchLevel = "Strong";
+  else if (S.attachRate > 10) merchLevel = "Moderate";
+
+  // --- Streaming ---
+  let streamingLevel = "Light";
+  if (S.streamingActivity > 7) streamingLevel = "Aggressive";
+  else if (S.streamingActivity > 4) streamingLevel = "Balanced";
+
+// --- Touring ---
+touringEl.textContent = touringLevel;
+touringEl.className = "card-value " + (
+  touringLevel === "High" ? "high" :
+  touringLevel === "Moderate" ? "balanced" :
+  "weak"
+);
+
+// --- Merch ---
+merchEl.textContent = merchLevel;
+merchEl.className = "card-value " + (
+  merchLevel === "Strong" ? "high" :
+  merchLevel === "Moderate" ? "balanced" :
+  "weak"
+);
+
+// --- Streaming ---
+streamingEl.textContent = streamingLevel;
+streamingEl.className = "card-value " + (
+  streamingLevel === "Aggressive" ? "high" :
+  streamingLevel === "Balanced" ? "balanced" :
+  "weak"
+);
+
+  // --- Message ---
+  let text = "";
+
+  if (touringLevel === "High") {
+    text += "You're relying heavily on touring. High income potential, but demanding. ";
+  } else if (touringLevel === "Low") {
+    text += "Low touring activity limits your income potential. ";
+  }
+
+  if (merchLevel === "Strong") {
+    text += "Your fans are highly engaged and likely to spend. ";
+  }
+
+  if (streamingLevel === "Aggressive") {
+    text += "You're prioritizing audience growth. ";
+  }
+
+  if (!text) {
+    text = "Balanced strategy across income streams.";
+  }
+
+  msg.textContent = text;
 }
 
-function onMerchChange() {
-  S.attachRate = parseInt(document.getElementById('slider-attach').value);
-  document.getElementById('val-attach').textContent = S.attachRate;
-
-  S.merchItems = [];
-  if (document.getElementById('merch-tshirt').checked) S.merchItems.push('tshirt');
-  if (document.getElementById('merch-vinyl').checked)  S.merchItems.push('vinyl');
-  if (document.getElementById('merch-hoodie').checked) S.merchItems.push('hoodie');
-
-  calcIncome();
-  populateEngines();
-  updateStatusBar();
-}
 
 // =============================================================
 //  CORE INCOME CALCULATIONS
 // =============================================================
 
 function calcIncome() {
-  const tierName = TIER_NAMES[S.audienceTier];
-  const streams  = TIER_STREAMS[tierName].mid;
-  const fanMult  = S.fanStrength / 100;
 
-  // --- Streaming ---
-  const spotifyCPM        = CPM[tierName] ? CPM[tierName]['spotify'] : 0;
-  const streamingWeight   = S.strategy.streaming / 10;
-  S.income.streaming      = spotifyCPM
-    ? (spotifyCPM / 1000) * streams * streamingWeight
-    : 0;
+  // --- Reset ---
+  S.income.streaming = 0;
+  S.income.social = 0;
+  S.income.touring = 0;
+  S.income.merch = 0;
+  S.income.total = 0;
 
-  // --- Social (best non-spotify platform for this tier) ---
-  const socialPlatforms   = ['youtube', 'instagram', 'tiktok'];
-  let bestCPM             = 0;
-  let bestPlatform        = 'YouTube';
-  socialPlatforms.forEach(p => {
-    const cpm = CPM[tierName] && CPM[tierName][p];
-    if (cpm && cpm > bestCPM) { bestCPM = cpm; bestPlatform = p; }
-  });
-  const socialWeight      = S.strategy.social / 10;
-  S.income.social         = bestCPM
-    ? (bestCPM / 1000) * streams * socialWeight * 0.3  // social reach is 30% of stream count
-    : 0;
+  const streamingEnabled = document.getElementById('aud-streaming')?.checked;
+  const streamingSize = document.getElementById('streaming-size')?.value;
 
-  // --- Touring ---
-  const venue             = VENUE_TYPES[tierName];
-  const attendance        = Math.round(venue.cap * fanMult);
-  const touringWeight     = S.strategy.touring / 10;
-  const grossPerShow      = attendance * venue.ticket;
-  const artistEarnings    = grossPerShow * (S.artistCut / 100);
-  S.income.touring        = artistEarnings * S.showsPerMonth * touringWeight;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+  const liveSize = document.getElementById('live-size')?.value;
 
-  // --- Merch ---
-  const attachFraction    = S.attachRate / 100;
-  const merchWeight       = S.strategy.merch / 10;
-  let avgProfit           = 0;
-  if (S.merchItems.length > 0) {
-    const totalProfit = S.merchItems.reduce((sum, key) => sum + (MERCH[key] ? MERCH[key].profit : 0), 0);
-    avgProfit = totalProfit / S.merchItems.length;
+  const fanMult = S.fanStrength / 100;
+
+  let attendance = 0; // 👈 important (used later)
+
+  // -------------------
+  // STREAMING
+  // -------------------
+  if (streamingEnabled && streamingSize !== "") {
+
+    const tierMap = {
+      nano: "Nano",
+      micro: "Micro",
+      mid: "Mid",
+      macro: "Macro"
+    };
+
+    const tierName = tierMap[streamingSize];
+
+    const streams = TIER_STREAMS[tierName].mid;
+    const cpm = CPM[tierName]?.spotify || 0;
+
+    const streamingWeight = S.strategy.streaming / 10;
+
+    S.income.streaming = (cpm / 1000) * streams * streamingWeight;
   }
-  const totalAttendance   = attendance * S.showsPerMonth;
-  S.income.merch          = totalAttendance * attachFraction * avgProfit * merchWeight;
 
-  // --- Total ---
-  S.income.total = S.income.streaming + S.income.social + S.income.touring + S.income.merch;
+  // -------------------
+  // TOURING
+  // -------------------
+  if (liveEnabled && liveSize !== "") {
+
+    const venue = LIVE_VENUES[liveSize];
+
+    if (venue) {
+
+      const attendanceRate = 0.4 + (fanMult * 0.5);
+      attendance = Math.round(venue.cap * attendanceRate);
+
+      const grossPerShow = attendance * venue.price;
+      const artistEarnings = grossPerShow * (S.artistCut / 100);
+
+      const touringWeight = S.strategy.touring / 10;
+
+      S.income.touring =
+        artistEarnings * S.showsPerMonth * touringWeight;
+    }
+  }
+
+  // -------------------
+  // SOCIAL (leave simple)
+  // -------------------
+  S.income.social = S.income.streaming * 0.3;
+
+  // -------------------
+  // MERCH (safe version)
+  // -------------------
+  if (attendance > 0) {
+    const attachFraction = S.attachRate / 100;
+
+    let avgProfit = 0;
+    if (S.merchItems.length > 0) {
+      const totalProfit = S.merchItems.reduce(
+        (sum, k) => sum + (MERCH[k]?.profit || 0),
+        0
+      );
+      avgProfit = totalProfit / S.merchItems.length;
+    }
+
+    const totalAttendance = attendance * S.showsPerMonth;
+
+    S.income.merch =
+      totalAttendance * attachFraction * avgProfit;
+  }
+
+  // -------------------
+  // TOTAL
+  // -------------------
+  S.income.total =
+    S.income.streaming +
+    S.income.social +
+    S.income.touring +
+    S.income.merch;
 }
-
 // =============================================================
 //  SCREEN 4: POPULATE ENGINE CARDS
 // =============================================================
@@ -387,6 +600,8 @@ function populateEngines() {
 // =============================================================
 //  SCREEN 5: RESULTS
 // =============================================================
+
+
 
 function populateResults() {
   const data    = CITIES[S.city];
@@ -553,7 +768,11 @@ function updateStatusBar() {
   bar.style.display = 'block';
   document.getElementById('status-city').textContent   = S.city;
   document.getElementById('status-goal').textContent   = fmt(data.postTaxMin) + '/mo';
+  if (!window.simState.audienceV2.streamingEnabled && !window.simState.audienceV2.liveEnabled) {
+  document.getElementById('status-income').textContent = '—';
+} else {
   document.getElementById('status-income').textContent = fmt(S.income.total) + '/mo';
+}
 
   const badge = document.getElementById('status-badge');
   if (S.income.total === 0)          { badge.textContent = '—';           badge.className = 'status-badge'; }
@@ -568,11 +787,37 @@ function updateStatusBar() {
 
 function restartSim() {
   S = {
-    city: null, audienceTier: 0, fanStrength: 50,
-    strategy: { streaming: 5, social: 5, touring: 5, merch: 5 },
-    showsPerMonth: 4, artistCut: 15, attachRate: 10, merchItems: ['tshirt'],
-    income: { streaming: 0, social: 0, touring: 0, merch: 0, total: 0 }
+    city: null,
+
+    // Audience
+    audienceTier: null,
+    fanStrength: 50,
+
+    // NEW MODEL (real controls)
+    showsPerMonth: 4,
+    artistCut: 15,
+    attachRate: 10,
+    streamingActivity: 5,
+
+    // COMPAT LAYER (do not remove yet)
+    strategy: {
+      streaming: 5,
+      social: 5,
+      touring: 5,
+      merch: 5
+    },
+
+    merchItems: ['tshirt'],
+
+    income: {
+      streaming: 0,
+      social: 0,
+      touring: 0,
+      merch: 0,
+      total: 0
+    }
   };
+
   document.getElementById('sim-statusbar').style.display = 'none';
   goTo(0);
 }
