@@ -237,158 +237,206 @@
     <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy →</button>
   </div>
 </section>
-    <!-- ============================================================
-         SCREEN 3: STRATEGY
-         ============================================================ -->
-   <section class="sim-screen" id="screen-3">
+   <!-- ============================================================
+     SCREEN 3: STRATEGY
+     ============================================================ -->
+<section class="sim-screen" id="screen-3">
+
   <div class="sim-two-col">
 
-    <!-- LEFT: Controls -->
+    <!-- =========================
+         LEFT: CONTROLS
+         ========================= -->
     <div class="sim-col-main">
+
       <div class="kicker">Step 3 of 5</div>
-      <h2 class="h2">Tune Your Income Engines</h2>
+      <h2 class="h2">Tune Your Income Strategy</h2>
 
       <p class="note">
-        This is where your audience turns into income.
-      </p>
-
-      <p class="note">
-        Streaming builds reach. Touring generates revenue. Merch amplifies fan spending.
+        This is where your audience turns into income — streaming builds reach, performing generates revenue, and merch amplifies fan spending.
       </p>
 
       <!-- =========================
-           TOURING (PRIMARY DRIVER)
+           STREAMING
            ========================= -->
-      <div class="form-group">
-        <label>🎤 Touring Intensity</label>
-        <p class="micro">Live shows are your most direct source of income</p>
-
-        <!-- Shows per month -->
-        <div class="slider-group">
-          <label>Shows per Month</label>
-          <input type="range" id="slider-shows" min="1" max="20" value="4"
-                 oninput="onTouringChange()" />
-          <p class="slider-hint">How often you perform</p>
+      <div class="form-group strategy-step" data-step="1">
+        <div class="step-header">
+          <span class="step-number">01</span>
+          <div>
+            <label>🎵 Streaming Strategy</label>
+            <p class="micro">Build your audience reach</p>
+          </div>
         </div>
 
-        <!-- Artist cut -->
+        <div class="slider-group">
+          <label>Release Activity</label>
+          <p class="slider-hint">Frequency of releases and content</p>
+
+          <input type="range"
+                 id="strat-streaming"
+                 min="0"
+                 max="10"
+                 step="1"
+                 value="0"
+                 oninput="onStrategyChange()" />
+
+          <div class="slider-scale">
+            <span>Light</span>
+            <span>Balanced</span>
+            <span>Aggressive</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================
+           LIVE PERFORMANCE
+           ========================= -->
+      <div class="form-group strategy-step" data-step="2">
+        <div class="step-header">
+          <span class="step-number">02</span>
+          <div>
+            <label>🎤 Live Performance</label>
+            <p class="micro">Convert your audience into local live revenue</p>
+          </div>
+        </div>
+
+        <div class="slider-group">
+          <label>Shows per Month</label>
+          <p class="slider-hint">How often you perform</p>
+
+          <input type="range"
+                 id="slider-shows"
+                 min="1"
+                 max="20"
+                 value="4"
+                 oninput="onTouringChange()" />
+
+          <div class="slider-scale">
+            <span>Low</span>
+            <span>Active</span>
+            <span>Heavy</span>
+          </div>
+        </div>
+
         <div class="slider-group">
           <label>Artist Cut (%)</label>
-          <input type="range" id="slider-cut" min="10" max="30" value="15"
+
+          <input type="range"
+                 id="slider-cut"
+                 min="10"
+                 max="30"
+                 value="15"
                  oninput="onTouringChange()" />
+
           <p class="slider-hint">Your share of ticket revenue</p>
         </div>
       </div>
 
       <!-- =========================
-           MERCH (CONVERSION LAYER)
+           FAN MONETIZATION
            ========================= -->
-      <div class="form-group">
-        <label>👕 Fan Monetization</label>
-        <p class="micro">How well you convert fans into paying customers</p>
+      <div class="form-group strategy-step" data-step="3">
+        <div class="step-header">
+          <span class="step-number">03</span>
+          <div>
+            <label>👕 Fan Monetization</label>
+            <p class="micro">Maximize value per fan</p>
+          </div>
+        </div>
 
         <div class="slider-group">
           <label>Merch Attach Rate (%)</label>
-          <input type="range" id="slider-attach" min="1" max="30" value="10"
-                 oninput="onMerchChange()" />
           <p class="slider-hint">% of fans who buy something</p>
-        </div>
-      </div>
 
-      <!-- =========================
-           STREAMING (SCALE ENGINE)
-           ========================= -->
-      <div class="form-group">
-        <label>🎵 Streaming Strategy</label>
-        <p class="micro">How aggressively you grow your audience</p>
+          <input type="range"
+                 id="slider-attach"
+                 min="1"
+                 max="30"
+                 value="10"
+                 oninput="onMerchChange()" />
 
-        <div class="slider-group">
-          <label>Release Activity</label>
-          <input type="range" id="strat-streaming" min="1" max="10" value="5"
-                 oninput="onStrategyChange()" />
-          <p class="slider-hint">Frequency of releases and content</p>
+          <div class="slider-scale">
+            <span>Weak</span>
+            <span>Moderate</span>
+            <span>Strong</span>
+          </div>
         </div>
       </div>
 
     </div>
 
-    <!-- RIGHT: System Feedback -->
-<div class="sim-col-side">
-  <div class="side-panel strategy-panel">
+    <!-- =========================
+         RIGHT: OUTPUT
+         ========================= -->
+    <div class="sim-col-side">
 
-    <!-- Top Summary Cards -->
-    <div class="strategy-cards">
+      <div class="side-panel strategy-panel">
 
-      <div class="strategy-card">
-        <div class="card-title">🎤 Touring Focus</div>
-        <div class="card-value high" id="profile-touring-focus">—</div>
-        <div class="card-desc">Live show driven income</div>
-      </div>
+        <div class="income-system">
 
-      <div class="strategy-card">
-        <div class="card-title">👕 Fan Monetization</div>
-        <div class="card-value weak" id="profile-merch-focus">—</div>
-        <div class="card-desc">Merch conversion strength</div>
-      </div>
+          <h4>Income Breakdown</h4>
 
-      <div class="strategy-card">
-        <div class="card-title">🎵 Growth Strategy</div>
-        <div class="card-value balanced" id="profile-streaming-focus">—</div>
-        <div class="card-desc">Audience growth focus</div>
-      </div>
+          <!-- PIE + OVERLAY -->
+          <div class="income-overlay">
 
-    </div>
+            <div class="income-chart">
+              <canvas id="chart-income" width="200" height="200"></canvas>
+            </div>
 
-    <!-- Explanation -->
-    <div class="insight-box">
-      <strong>What This Means</strong>
-      <p id="reaction-message">
-        Adjust your inputs to see how your income model shifts.
-      </p>
-    </div>
+            <div class="strategy-cards overlay-cards">
 
-    <!-- Divider -->
-    <div class="divider"></div>
+              <div class="strategy-card">
+                <div class="card-title">🎵 Streaming Strategy</div>
+                <div class="card-value balanced" id="profile-streaming-focus">—</div>
+                <div class="card-desc">Audience growth focus</div>
+              </div>
 
-    <!-- Income Breakdown -->
-    <div class="income-section">
-      <h4>Income Breakdown</h4>
+              <div class="strategy-card">
+                <div class="card-title">🎤 Live Performance</div>
+                <div class="card-value high" id="profile-touring-focus">—</div>
+                <div class="card-desc">Live show-driven income</div>
+              </div>
 
-      <div class="income-chart-row">
-        <canvas id="chart-income" width="180" height="180"></canvas>
+              <div class="strategy-card">
+                <div class="card-title">👕 Fan Monetization</div>
+                <div class="card-value weak" id="profile-merch-focus">—</div>
+                <div class="card-desc">Merch conversion strength</div>
+              </div>
 
-        <div class="income-legend">
-          <div><span class="dot streaming"></span> Streaming</div>
-          <div><span class="dot touring"></span> Touring</div>
-          <div><span class="dot merch"></span> Merch</div>
+            </div>
+
+          </div>
+
+          <!-- INSIGHT -->
+          <div class="insight-box">
+            <strong>What This Means</strong>
+            <p id="reaction-message">
+              Adjust your inputs to see how your income model shifts.
+            </p>
+          </div>
+
         </div>
+
       </div>
+
     </div>
 
   </div>
-</div>
 
-  
-
+  <!-- NAV -->
   <div class="sim-nav">
     <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
     <button class="btn btn-primary" onclick="goTo(4)">Next: See Your Results</button>
   </div>
+
 </section>
 
-   <!-- ============================================================
-     SCREEN 4: VIABILITY REPORT
-     ============================================================ -->
-<section class="sim-screen" id="screen-4">
-  <div class="kicker">Step 4 of 4</div>
-  <h2 class="h2">Your Viability Report</h2>
-  <p class="note">
-    This is the outcome of your strategy — how your audience converts into income.
-  </p>
 
   <!-- =========================
        HEADLINE RESULT
        ========================= -->
+
+<section class="sim-screen" id="screen-4">
   <div class="verdict-banner" id="verdict-banner">
     <div class="verdict-income" id="verdict-income">$0 / mo</div>
     <div class="verdict-status" id="verdict-status">—</div>
@@ -438,11 +486,7 @@
     <div id="recommendations-list"></div>
   </div>
 
-  <!-- NAV -->
-  <div class="sim-nav">
-    <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
-    <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
-  </div>
+
 
 
 
