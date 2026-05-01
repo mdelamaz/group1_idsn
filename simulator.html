@@ -113,7 +113,7 @@
 
     <!-- LEFT: Audience Builder -->
     <div class="sim-col-main">
-      <div class="kicker">Step 2 of 5</div>
+      <div class="kicker">Step 2 of 4</div>
       <h2 class="h2">Define Your Audience</h2>
       <p class="note">Define your reach, then how strongly your audience engages.</p>
 
@@ -222,9 +222,21 @@
 
         <div class="profile-stat" style="margin-top:16px;">
           <span>How this works</span>
-          <div id="logic-output" style="font-size:13px; line-height:1.5; margin-top:6px;">
-            Select inputs to see how demand converts into income.
-          </div>
+          <div id="logic-output" style="margin-top:6px;">
+  <div class="explainer-step">
+    <span class="step-num">1</span>
+    <span class="step-text">
+      Select platforms or live performance to define your reach.
+    </span>
+  </div>
+
+  <div class="explainer-step">
+    <span class="step-num">2</span>
+    <span class="step-text">
+      Set your fan engagement to determine how many people actually show up and spend.
+    </span>
+  </div>
+</div>
         </div>
 
       </div>
@@ -249,7 +261,7 @@
          ========================= -->
     <div class="sim-col-main">
 
-      <div class="kicker">Step 3 of 5</div>
+      <div class="kicker">Step 3 of 4</div>
       <h2 class="h2">Tune Your Income Strategy</h2>
 
       <p class="note">
@@ -275,16 +287,13 @@
           <input type="range"
                  id="strat-streaming"
                  min="0"
-                 max="10"
+                 max="100"
                  step="1"
                  value="0"
                  oninput="onStrategyChange()" />
+                 <div class="strat-value" id="val-streaming">0</div>
 
-          <div class="slider-scale">
-            <span>Light</span>
-            <span>Balanced</span>
-            <span>Aggressive</span>
-          </div>
+          
         </div>
       </div>
 
@@ -306,29 +315,28 @@
 
           <input type="range"
                  id="slider-shows"
-                 min="1"
+                 min="0"
                  max="20"
-                 value="4"
+                 value="0"
                  oninput="onTouringChange()" />
+                 <div class="strat-value" id="val-shows">0</div>
 
-          <div class="slider-scale">
-            <span>Low</span>
-            <span>Active</span>
-            <span>Heavy</span>
-          </div>
+          
         </div>
 
         <div class="slider-group">
           <label>Artist Cut (%)</label>
+          <p class="slider-hint">Your share of ticket revenue</p>
 
           <input type="range"
                  id="slider-cut"
-                 min="10"
-                 max="30"
-                 value="15"
+                 min="0"
+                 max="100"
+                 value="0"
                  oninput="onTouringChange()" />
+                 <div class="strat-value" id="val-cut">0%</div>
 
-          <p class="slider-hint">Your share of ticket revenue</p>
+          
         </div>
       </div>
 
@@ -350,16 +358,13 @@
 
           <input type="range"
                  id="slider-attach"
-                 min="1"
+                 min="0"
                  max="30"
-                 value="10"
+                 value="0"
                  oninput="onMerchChange()" />
+                 <div class="strat-value" id="val-attach">0%</div>
 
-          <div class="slider-scale">
-            <span>Weak</span>
-            <span>Moderate</span>
-            <span>Strong</span>
-          </div>
+         
         </div>
       </div>
 
@@ -426,7 +431,7 @@
   <!-- NAV -->
   <div class="sim-nav">
     <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
-    <button class="btn btn-primary" onclick="goTo(4)">Next: See Your Results</button>
+    <button class="btn btn-primary" onclick="goTo(4)">Next: See Your Results →</button>
   </div>
 
 </section>
@@ -437,6 +442,10 @@
        ========================= -->
 
 <section class="sim-screen" id="screen-4">
+
+  <!-- =========================
+       HEADLINE RESULT
+       ========================= -->
   <div class="verdict-banner" id="verdict-banner">
     <div class="verdict-income" id="verdict-income">$0 / mo</div>
     <div class="verdict-status" id="verdict-status">—</div>
@@ -445,34 +454,92 @@
 
   <div class="results-grid">
 
-    <!-- LEFT: Strategy + Profile -->
+    <!-- =========================
+         LEFT COLUMN
+         ========================= -->
     <div class="results-col">
 
-      <h3>Your Strategy</h3>
-      <div class="result-card"><span>🎤 Touring</span><strong id="res-strategy-touring">—</strong></div>
-      <div class="result-card"><span>👕 Merch</span><strong id="res-strategy-merch">—</strong></div>
-      <div class="result-card"><span>🎵 Streaming</span><strong id="res-strategy-streaming">—</strong></div>
+      <!-- 🔍 EXPLANATION -->
+      <div class="results-section">
+        <h3>What This Means</h3>
+        <div class="insight-box" id="final-explanation">
+          Your strategy results will be explained here.
+        </div>
+      </div>
 
-      <div class="results-section" style="margin-top:24px;">
+      <!-- 👤 PROFILE -->
+      <div class="results-section">
         <h3>Your Artist Profile</h3>
         <div class="persona-card" id="persona-card"></div>
       </div>
 
+      <!-- 🧠 STRATEGY SUMMARY -->
+      <div class="results-section">
+        <h3>Your Strategy Mix</h3>
+
+        <div class="result-card">
+          <span>🎵 Streaming</span>
+          <strong id="res-strategy-streaming">—</strong>
+        </div>
+
+        <div class="result-card">
+          <span>🎤 Live Performances</span>
+          <strong id="res-strategy-touring">—</strong>
+        </div>
+
+        <div class="result-card">
+          <span>👕 Merch</span>
+          <strong id="res-strategy-merch">—</strong>
+        </div>
+      </div>
+
     </div>
 
-    <!-- RIGHT: Income + Chart -->
+    <!-- =========================
+         RIGHT COLUMN
+         ========================= -->
     <div class="results-col">
 
-      <h3>Income Breakdown</h3>
-      <canvas id="chart-income" width="260" height="260"></canvas>
+      <!-- 📊 CHART -->
+      <div class="results-section">
+        <h3>Income Breakdown</h3>
+        <canvas id="chart-income-final" width="260" height="260"></canvas>
+      </div>
 
-      <div class="result-card"><span>🎵 Streaming</span><strong id="res-streaming">—</strong></div>
-      <div class="result-card"><span>🎤 Touring</span><strong id="res-touring">—</strong></div>
-      <div class="result-card"><span>👕 Merch</span><strong id="res-merch">—</strong></div>
-      <div class="result-card total"><span>Total</span><strong id="res-total">—</strong></div>
+      <!-- 💰 NUMBERS -->
+      <div class="results-section">
 
-      <div class="result-card"><span>Cost of Living</span><strong id="res-cost">—</strong></div>
-      <div class="result-card"><span>Net</span><strong id="res-net">—</strong></div>
+        <div class="result-card">
+          <span>🎵 Streaming</span>
+          <strong id="res-streaming">—</strong>
+        </div>
+
+        <div class="result-card">
+          <span>🎤 Live Performances</span>
+          <strong id="res-touring">—</strong>
+        </div>
+
+        <div class="result-card">
+          <span>👕 Merch</span>
+          <strong id="res-merch">—</strong>
+        </div>
+
+        <div class="result-card total">
+          <span>Total Income</span>
+          <strong id="res-total">—</strong>
+        </div>
+
+        <div class="result-card">
+          <span>Cost of Living</span>
+          <strong id="res-cost">—</strong>
+        </div>
+
+        <div class="result-card">
+          <span>Net</span>
+          <strong id="res-net">—</strong>
+        </div>
+
+      </div>
 
     </div>
 
@@ -486,27 +553,23 @@
     <div id="recommendations-list"></div>
   </div>
 
+  <!-- =========================
+       CTA
+       ========================= -->
+  <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
+    <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
+    <button class="btn btn-secondary" onclick="goTo(1)">Change City</button>
+    <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
+  </div>
 
-
-
-
-      <!-- CTAs -->
-      <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
-        <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
-        <button class="btn btn-secondary" onclick="goTo(1)">Change City</button>
-        <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
-      </div>
-
-    </section>
+</section>
 
   </main>
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Data layer -->
-  <script src="js/data.js"></script>
-  <!-- Simulator logic -->
-  <script src="js/simulator.js"></script>
+ <script src="js/data.js" defer></script>
+<script src="js/simulator.js" defer></script>
  <script>
 function updateLogicExplanation() {
   const el = document.getElementById("logic-output");
