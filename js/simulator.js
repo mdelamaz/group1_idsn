@@ -130,34 +130,200 @@ function onCityChange() {
   const select  = document.getElementById('city-select');
   const city    = select.value;
   if (!city) return;
+  selectCity(city);
+}
 
-  S.city = city;
-  const data = CITIES[city];
+const CITY_XY = {
+  "Los Angeles": { x: 105, y: 322 },
+  "San Francisco": { x: 90, y: 268 },
+  "San Diego": { x: 115, y: 348 },
+  "Seattle": { x: 122, y: 162 },
+  "Portland": { x: 120, y: 212 },
+  "Las Vegas": { x: 154, y: 298 },
+  "Phoenix": { x: 218, y: 368 },
+  "Denver": { x: 340, y: 302 },
+  "Washington": { x: 763, y: 255 },
+  "Miami": { x: 650, y: 490 },
+  "Orlando": { x: 630, y: 465 },
+  "Tampa": { x: 608, y: 462 },
+  "Atlanta": { x: 638, y: 392 },
+  "Chicago": { x: 568, y: 270 },
+  "New Orleans": { x: 534, y: 420 },
+  "Boston": { x: 840, y: 194 },
+  "Detroit": { x: 618, y: 220 },
+  "Minneapolis": { x: 474, y: 197 },
+  "Charlotte": { x: 692, y: 330 },
+  "New York": { x: 782, y: 212 },
+  "Columbus": { x: 644, y: 274 },
+  "Philadelphia": { x: 774, y: 240 },
+  "Pittsburgh": { x: 718, y: 242 },
+  "Nashville": { x: 596, y: 350 },
+  "Austin": { x: 430, y: 432 },
+  "Dallas": { x: 455, y: 400 },
+  "Houston": { x: 472, y: 432 },
+  "Salt Lake City": { x: 255, y: 297 },
+  "Richmond": { x: 742, y: 280 },
+  "Raleigh": { x: 690, y: 360 }
+};
 
-  // Show the right panel
-  document.getElementById('city-panel').style.display = 'block';
+let mapTransform = { scale: 1, x: 0, y: 0 };
+let mapDrag = { active: false, startX: 0, startY: 0, baseX: 0, baseY: 0 };
 
-  // Populate cost breakdown
-  document.getElementById('panel-city-name').textContent = city + ', ' + data.state;
-  document.getElementById('cost-housing').textContent    = fmt(data.housing);
-  document.getElementById('cost-food').textContent       = fmt(data.food);
-  document.getElementById('cost-transport').textContent  = fmt(data.transportation);
-  document.getElementById('cost-medical').textContent    = fmt(data.medical);
-  document.getElementById('cost-internet').textContent   = fmt(data.internet);
-  document.getElementById('cost-civic').textContent      = fmt(data.civic);
-  document.getElementById('cost-other').textContent      = fmt(data.other);
+function getCityCost(data) {
+  return data.housing + data.food + data.transportation +
+    data.medical + data.internet + data.civic + data.other;
+}
 
-  const total = data.housing + data.food + data.transportation +
-                data.medical + data.internet + data.civic + data.other;
+function selectCity(key) {
+  const data = CITIES[key];
+  if (!data) return;
 
-  document.getElementById('cost-total').textContent    = fmt(total);
- 
+  S.city = key;
 
-  // Enable next button
-  document.getElementById('btn-1-next').disabled = false;
+  const panel = document.getElementById('city-panel');
+  if (panel) panel.style.display = 'block';
 
-  // Update status bar
+  setText('panel-city-name', key + ', ' + data.state);
+  setText('cost-housing', fmt(data.housing));
+  setText('cost-food', fmt(data.food));
+  setText('cost-transport', fmt(data.transportation));
+  setText('cost-medical', fmt(data.medical));
+  setText('cost-internet', fmt(data.internet));
+  setText('cost-civic', fmt(data.civic));
+  setText('cost-other', fmt(data.other));
+  setText('cost-total', fmt(getCityCost(data)));
+
+  const nextBtn = document.getElementById('btn-1-next');
+  if (nextBtn) nextBtn.disabled = false;
+
+  const select = document.getElementById('city-select');
+  if (select) select.value = key;
+
+  document.querySelectorAll('.city-dot-g').forEach(d => d.classList.remove('sel'));
+  const dot = document.querySelector(`.city-dot-g[data-key="${key}"]`);
+  if (dot) dot.classList.add('sel');
+
+  document.querySelectorAll('.state-path').forEach(s => s.classList.remove('selected'));
+  const statePath = document.getElementById('sp-' + data.state);
+  if (statePath) statePath.classList.add('selected');
+
   updateStatusBar();
+}
+
+function showMapTooltip(data, evt) {
+  const tt = document.getElementById('mapTooltip');
+  if (!tt) return;
+
+  const cityName = data.name ? data.name.split(',')[0] : '—';
+  tt.innerHTML = `
+    <div class="tt-city">${cityName}</div>
+    <div class="tt-row"><span class="tt-key">Monthly basket</span><span class="tt-val">${fmt(getCityCost(data))}</span></div>
+    <div class="tt-row"><span class="tt-key">Housing</span><span class="tt-val">${fmt(data.housing || 0)}</span></div>
+    <div class="tt-row"><span class="tt-key">Food</span><span class="tt-val">${fmt(data.food || 0)}</span></div>
+  `;
+  tt.classList.add('vis');
+  moveMapTooltip(evt);
+}
+
+function moveMapTooltip(evt) {
+  const tt = document.getElementById('mapTooltip');
+  if (!tt) return;
+
+  let x = evt.clientX + 14;
+  let y = evt.clientY - 10;
+  if (x + 210 > window.innerWidth) x = evt.clientX - 220;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+function hideMapTooltip() {
+  const tt = document.getElementById('mapTooltip');
+  if (tt) tt.classList.remove('vis');
+}
+
+function buildMap() {
+  const group = document.getElementById('cityDotsG');
+  if (!group || typeof CITIES === 'undefined') return;
+
+  group.innerHTML = '';
+
+  Object.entries(CITIES).forEach(([key, data]) => {
+    const cityName = data.name ? data.name.split(',')[0] : key;
+    const pos = CITY_XY[cityName] || CITY_XY[key];
+    if (!pos) return;
+
+    const dotGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    dotGroup.classList.add('city-dot-g');
+    dotGroup.dataset.key = key;
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', pos.x);
+    circle.setAttribute('cy', pos.y);
+    circle.setAttribute('r', '5');
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', pos.x + 8);
+    label.setAttribute('y', pos.y + 4);
+    label.textContent = cityName;
+
+    dotGroup.appendChild(circle);
+    dotGroup.appendChild(label);
+    dotGroup.addEventListener('mouseenter', e => showMapTooltip(data, e));
+    dotGroup.addEventListener('mousemove', moveMapTooltip);
+    dotGroup.addEventListener('mouseleave', hideMapTooltip);
+    dotGroup.addEventListener('click', () => selectCity(key));
+    group.appendChild(dotGroup);
+  });
+}
+
+function applyMapTransform() {
+  const inner = document.getElementById('mapInner');
+  const zoomLabel = document.getElementById('mapZoomLabel');
+  if (!inner) return;
+
+  inner.style.transform = `translate(${mapTransform.x}px, ${mapTransform.y}px) scale(${mapTransform.scale})`;
+  if (zoomLabel) zoomLabel.textContent = Math.round(mapTransform.scale * 100) + '%';
+}
+
+function mapZoom(delta) {
+  mapTransform.scale = Math.max(1, Math.min(3, mapTransform.scale + delta));
+  applyMapTransform();
+}
+
+function mapReset() {
+  mapTransform = { scale: 1, x: 0, y: 0 };
+  applyMapTransform();
+}
+
+function initMapInteractions() {
+  const container = document.getElementById('mapContainer');
+  if (!container) return;
+
+  container.addEventListener('wheel', (evt) => {
+    evt.preventDefault();
+    mapZoom(evt.deltaY < 0 ? 0.12 : -0.12);
+  }, { passive: false });
+
+  container.addEventListener('mousedown', (evt) => {
+    mapDrag.active = true;
+    mapDrag.startX = evt.clientX;
+    mapDrag.startY = evt.clientY;
+    mapDrag.baseX = mapTransform.x;
+    mapDrag.baseY = mapTransform.y;
+    container.classList.add('dragging');
+  });
+
+  window.addEventListener('mousemove', (evt) => {
+    if (!mapDrag.active) return;
+    mapTransform.x = mapDrag.baseX + (evt.clientX - mapDrag.startX);
+    mapTransform.y = mapDrag.baseY + (evt.clientY - mapDrag.startY);
+    applyMapTransform();
+  });
+
+  window.addEventListener('mouseup', () => {
+    mapDrag.active = false;
+    container.classList.remove('dragging');
+  });
 }
 
 // =============================================================
@@ -1032,37 +1198,26 @@ function updateStatusBar() {
   if (!S.city) return;
 
   const bar  = document.getElementById('sim-statusbar');
+  if (!bar) return;
+
   const data = CITIES[S.city];
-  const cost = data.housing + data.food + data.transportation +
-               data.medical + data.internet + data.civic + data.other;
+  const cost = getCityCost(data);
+  const income = (currentScreen >= 3 && S.income.total > 0) ? S.income.total : 0;
+  const fill = document.getElementById('status-meter-fill');
 
-  bar.style.display = 'block';
-  document.getElementById('status-city').textContent   = S.city;
-  document.getElementById('status-goal').textContent   = fmt(data.postTaxMin) + '/mo';
-  if (currentScreen >= 3 && S.income.total > 0) {
-  document.getElementById('status-income').textContent = fmt(S.income.total);
-} else {
-  document.getElementById('status-income').textContent = '—';
-}
+  bar.style.display = 'flex';
+  setText('status-city', S.city);
+  setText('status-income', income > 0 ? fmt(income) : '—');
 
- const badge = document.getElementById('status-badge');
+  if (!fill) return;
 
-if (currentScreen < 3) {
-  badge.textContent = '—';
-  badge.className = 'status-badge';
-} else if (S.income.total === 0) {
-  badge.textContent = '—';
-  badge.className = 'status-badge';
-} else if (S.income.total < cost) {
-  badge.textContent = 'Below';
-  badge.className = 'status-badge badge-red';
-} else if (S.income.total < data.postTaxMin) {
-  badge.textContent = 'Close';
-  badge.className = 'status-badge badge-yellow';
-} else {
-  badge.textContent = 'Viable';
-  badge.className = 'status-badge badge-green';
-}
+  const ratio = cost > 0 ? income / cost : 0;
+  const pct = Math.max(0, Math.min(100, Math.round(ratio * 100)));
+  fill.style.width = pct + '%';
+
+  if (pct < 70) fill.style.background = '#ef4444';
+  else if (pct < 100) fill.style.background = '#f59e0b';
+  else fill.style.background = '#10b981';
 }
 // =============================================================
 //  RESTART
@@ -1155,6 +1310,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 }
 
   populateCityDropdown();
+  buildMap();
+  initMapInteractions();
 
   // Force defaults to sync with UI
   onAudienceChange();

@@ -6,6 +6,218 @@
   <title>STREAMONOMICS | Simulator</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/simulator.css" />
+
+  <style>
+    /* ============================================================
+       STATUS BAR — floating card
+       ============================================================ */
+    #sim-statusbar {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: none;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 999px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.06);
+      align-items: center;
+      gap: 0;
+      padding: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      min-width: 300px;
+      max-width: 480px;
+    }
+
+    .sb-city {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 13px 20px 13px 22px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.01em;
+      flex-shrink: 0;
+    }
+
+    .sb-city .sb-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+
+    .sb-sep {
+      width: 1px;
+      height: 28px;
+      background: rgba(0,0,0,0.09);
+      flex-shrink: 0;
+    }
+
+    .sb-income {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 10px 20px;
+      flex-shrink: 0;
+    }
+
+    .sb-income-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #aaa;
+      font-weight: 700;
+    }
+
+    #status-income {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.02em;
+    }
+
+    .sb-meter {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 10px 22px 10px 16px;
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .sb-meter-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #aaa;
+      font-weight: 700;
+    }
+
+    .sb-meter-track {
+      width: 100%;
+      height: 7px;
+      background: #ebebeb;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    #status-meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: #10b981;
+      transition: width 0.55s cubic-bezier(0.34,1.56,0.64,1), background 0.4s ease;
+    }
+
+    #sim-statusbar {
+      top: 96px !important;
+      bottom: auto !important;
+    }
+
+    .sim-main {
+      padding-top: 72px;
+    }
+
+    /* ============================================================
+       STEP 1 — MAP (exact styles from original simulation)
+       ============================================================ */
+    .map-container {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.08);
+      overflow: hidden;
+      border-radius: 4px;
+      cursor: grab;
+      margin-bottom: 18px;
+    }
+    .map-container.dragging { cursor: grabbing; }
+    .state-path { fill: #f3f4f6; stroke: #d1d5db; stroke-width: 0.8; transition: fill 0.2s, stroke 0.2s; }
+    .state-path.has-data { fill: #eceff3; }
+    .state-path.selected { fill: #efe5cf; stroke: #b98a2d; stroke-width: 1.5; }
+    .city-dot-g { cursor: pointer; }
+    .city-dot-g circle { fill: #b98a2d; stroke: rgba(185,138,45,0.28); stroke-width: 5; transition: all 0.2s; }
+    .city-dot-g:hover circle { r: 7; stroke-width: 10; fill: #c79c3f; }
+    .city-dot-g.sel circle  { fill: #d2a64a; stroke: rgba(185,138,45,0.35); stroke-width: 10; }
+    .city-dot-g text { fill: #7a7a7a; font-size: 8px; pointer-events: none; }
+    .city-dot-g:hover text, .city-dot-g.sel text { fill: #2a2a2a; }
+    .map-tooltip {
+      position: fixed; background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 12px 16px; pointer-events: none;
+      z-index: 9000; opacity: 0; transition: opacity 0.15s; min-width: 190px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .map-tooltip.vis { opacity: 1; }
+    .tt-city { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #2a2a2a; }
+    .tt-row { display: flex; justify-content: space-between; gap: 16px; padding: 3px 0; border-bottom: 1px solid rgba(0,0,0,0.07); font-size: 10px; }
+    .tt-row:last-child { border-bottom: none; }
+    .tt-key { color: #737373; }
+    .tt-val { color: #b98a2d; font-weight: 700; }
+    .map-controls { position: absolute; bottom: 10px; right: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 100; }
+    .map-ctrl-btn { width: 28px; height: 28px; background: #ffffff; border: 1px solid rgba(0,0,0,0.14); color: #666; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-weight: 700; line-height: 1; user-select: none; }
+    .map-ctrl-btn:hover { background: #faf7ef; color: #b98a2d; border-color: #b98a2d; }
+    .map-zoom-label { position: absolute; bottom: 10px; left: 10px; font-size: 9px; color: #666; letter-spacing: 1px; }
+    .map-hint { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 9px; color: #666; letter-spacing: 1px; white-space: nowrap; pointer-events: none; }
+
+    /* ============================================================
+       STEP 1 — DROPDOWN (new style)
+       ============================================================ */
+    .city-select-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .city-select-label {
+      display: block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 7px;
+    }
+
+    #city-select {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #f6f6f8;
+      border: 1.5px solid #e5e5e7;
+      border-radius: 12px;
+      padding: 13px 44px 13px 16px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: #111;
+      cursor: pointer;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    #city-select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.14);
+    }
+
+    .city-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 16px;
+      bottom: 15px;
+      color: #aaa;
+      pointer-events: none;
+      font-size: 0.95rem;
+    }
+
+    /* ============================================================
+       NAV BUTTONS — no arrows (override)
+       ============================================================ */
+    .btn-no-arrow::after,
+    .btn-no-arrow::before {
+      content: none !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -23,13 +235,23 @@
     </div>
   </header>
 
-  <!-- PERSISTENT STATUS BAR (hidden until screen 1 is complete) -->
-  <div class="sim-statusbar" id="sim-statusbar" style="display:none;">
-    <div class="sim-statusbar-inner">
-      <span>🏙️ City: <strong id="status-city">—</strong></span>
-      <span>🎯 Goal: <strong id="status-goal">—</strong></span>
-      <span>💰 Income: <strong id="status-income">—</strong></span>
-      <span id="status-badge" class="status-badge">—</span>
+  <!-- Floating status card -->
+  <div id="sim-statusbar">
+    <div class="sb-city">
+      <span class="sb-icon">🏙️</span>
+      <span id="status-city">—</span>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="sb-income">
+      <span class="sb-income-label">Income</span>
+      <span id="status-income">—</span>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="sb-meter">
+      <span class="sb-meter-label">Viability</span>
+      <div class="sb-meter-track">
+        <div id="status-meter-fill"></div>
+      </div>
     </div>
   </div>
 
@@ -44,7 +266,7 @@
         <div class="kicker">Streamonomics Simulator</div>
         <h1 class="h1">Turn your audience<br>into income.</h1>
         <p class="lead">Shape your artist profile. Watch the tradeoffs emerge. Test your viability.</p>
-        <button class="btn btn-primary btn-lg" onclick="goTo(1)">Begin Simulation →</button>
+        <button class="btn btn-primary btn-lg" onclick="goTo(1)">Begin Simulation</button>
       </div>
     </section>
 
@@ -60,17 +282,79 @@
           <h2 class="h2">Set Your City</h2>
           <p class="note">Your city sets your cost baseline — the minimum you need to survive.</p>
 
-          <!-- City dropdown (placeholder for SVG map) -->
-          <div class="form-group" style="margin-top:24px;">
-            <label for="city-select">Select your city</label>
-            <select id="city-select" class="sim-select" onchange="onCityChange()">
+          <!-- MAP — exact replica of original simulation -->
+          <div class="map-container" style="height:380px;" id="mapContainer">
+            <div class="map-hint" id="mapHint">scroll to zoom · drag to pan · click to select</div>
+            <div class="map-zoom-label" id="mapZoomLabel">100%</div>
+            <div class="map-controls">
+              <button class="map-ctrl-btn" onclick="mapZoom(0.25)" title="Zoom in">+</button>
+              <button class="map-ctrl-btn" onclick="mapZoom(-0.25)" title="Zoom out">−</button>
+              <button class="map-ctrl-btn" onclick="mapReset()" title="Reset" style="font-size:11px;">⌂</button>
+            </div>
+            <svg id="usMap" viewBox="0 0 960 580" style="width:100%;height:100%;display:block;">
+              <g id="mapInner" style="transform-origin:480px 290px;">
+                <g id="statesG">
+                  <path class="state-path has-data" id="sp-AZ" d="M178 310 L178 415 L295 415 L305 345 L255 310 Z"/>
+                  <path class="state-path has-data" id="sp-CA" d="M88 210 L80 345 L138 385 L178 415 L178 310 L155 260 L136 210 Z"/>
+                  <path class="state-path has-data" id="sp-CO" d="M293 268 L293 342 L413 342 L413 268 Z"/>
+                  <path class="state-path has-data" id="sp-DC" d="M758 248 L754 262 L770 262 L774 248 Z"/>
+                  <path class="state-path has-data" id="sp-FL" d="M583 432 L575 432 L568 480 L588 512 L652 492 L672 442 L632 422 L608 402 L600 432 Z"/>
+                  <path class="state-path has-data" id="sp-GA" d="M608 362 L606 402 L632 422 L672 442 L682 402 L667 362 Z"/>
+                  <path class="state-path has-data" id="sp-IL" d="M558 238 L553 322 L582 332 L592 282 L582 238 Z"/>
+                  <path class="state-path has-data" id="sp-LA" d="M508 392 L506 432 L552 442 L572 422 L572 392 Z"/>
+                  <path class="state-path has-data" id="sp-MA" d="M816 183 L813 207 L858 207 L860 183 Z"/>
+                  <path class="state-path has-data" id="sp-MI" d="M598 173 L596 238 L632 238 L647 208 L662 173 L630 163 Z"/>
+                  <path class="state-path has-data" id="sp-MN" d="M458 148 L456 238 L492 238 L497 198 L512 148 Z"/>
+                  <path class="state-path has-data" id="sp-NV" d="M136 218 L136 312 L178 312 L178 258 L156 258 Z"/>
+                  <path class="state-path has-data" id="sp-NY" d="M728 173 L724 230 L798 230 L802 173 Z"/>
+                  <path class="state-path has-data" id="sp-NC" d="M678 308 L676 352 L762 352 L764 308 Z"/>
+                  <path class="state-path has-data" id="sp-OH" d="M623 238 L620 312 L670 312 L672 238 Z"/>
+                  <path class="state-path has-data" id="sp-OR" d="M88 188 L88 252 L178 252 L178 192 L138 168 Z"/>
+                  <path class="state-path has-data" id="sp-PA" d="M698 216 L696 260 L764 260 L767 216 Z"/>
+                  <path class="state-path has-data" id="sp-SC" d="M663 342 L660 382 L712 382 L714 342 Z"/>
+                  <path class="state-path has-data" id="sp-TN" d="M568 332 L566 368 L682 368 L684 342 L622 332 Z"/>
+                  <path class="state-path has-data" id="sp-TX" d="M348 342 L343 462 L482 482 L512 432 L512 392 L392 392 L392 342 Z"/>
+                  <path class="state-path has-data" id="sp-UT" d="M238 258 L238 342 L297 342 L297 272 L278 258 Z"/>
+                  <path class="state-path has-data" id="sp-VA" d="M698 258 L696 302 L764 302 L767 258 Z"/>
+                  <path class="state-path has-data" id="sp-WA" d="M88 138 L88 192 L178 192 L178 148 L148 138 Z"/>
+                  <!-- non-data states for geography -->
+                  <path class="state-path" d="M248 138 L248 222 L382 222 L382 138 Z"/>
+                  <path class="state-path" d="M382 138 L382 202 L462 202 L462 138 Z"/>
+                  <path class="state-path" d="M382 202 L382 252 L462 252 L462 202 Z"/>
+                  <path class="state-path" d="M462 148 L462 202 L512 202 L512 148 Z"/>
+                  <path class="state-path" d="M293 208 L293 268 L382 268 L382 208 Z"/>
+                  <path class="state-path" d="M412 238 L412 292 L492 292 L492 238 Z"/>
+                  <path class="state-path" d="M412 292 L412 342 L512 342 L512 292 Z"/>
+                  <path class="state-path" d="M288 312 L288 412 L392 412 L392 312 Z"/>
+                  <path class="state-path" d="M512 292 L510 362 L562 362 L560 292 Z"/>
+                  <path class="state-path" d="M588 238 L588 312 L622 312 L627 238 Z"/>
+                  <path class="state-path" d="M678 258 L676 302 L712 302 L714 258 Z"/>
+                  <path class="state-path" d="M618 298 L616 342 L702 342 L705 312 L682 298 Z"/>
+                  <path class="state-path" d="M556 342 L553 422 L582 422 L585 362 L582 332 Z"/>
+                  <path class="state-path" d="M538 332 L536 392 L582 392 L585 362 L582 332 Z"/>
+                  <path class="state-path" d="M392 342 L392 392 L512 392 L512 342 Z"/>
+                  <path class="state-path" d="M527 173 L525 238 L562 238 L567 173 Z"/>
+                  <path class="state-path" d="M578 362 L576 432 L600 432 L608 402 L608 362 Z"/>
+                  <path class="state-path" d="M794 226 L790 248 L812 248 L816 226 Z"/>
+                  <path class="state-path" d="M746 248 L743 267 L792 267 L794 248 Z"/>
+                  <path class="state-path" d="M808 183 L806 200 L822 200 L824 183 Z"/>
+                  <path class="state-path" d="M830 158 L828 197 L850 197 L852 158 Z"/>
+                  <path class="state-path" d="M846 138 L843 187 L872 187 L877 138 Z"/>
+                  <path class="state-path" d="M808 197 L806 217 L832 217 L834 197 Z"/>
+                  <path class="state-path" d="M698 308 L696 352 L680 352 Z"/>
+                </g>
+                <g id="cityDotsG"></g>
+              </g>
+            </svg>
+          </div>
+          <div id="mapTooltip" class="map-tooltip"></div>
+
+          <!-- DROPDOWN -->
+          <div class="city-select-wrap">
+            <label class="city-select-label" for="city-select">Or search by city name</label>
+            <select id="city-select" onchange="onCityChange()">
               <option value="">— Choose a city —</option>
             </select>
-          </div>
-
-          <!-- Map placeholder -->
-          <div class="map-placeholder" id="map-placeholder">
-            <span>🗺️ Interactive map coming soon</span>
           </div>
         </div>
 
@@ -83,7 +367,7 @@
               <div class="cost-row"><span>🍔 Food</span><strong id="cost-food">—</strong></div>
               <div class="cost-row"><span>🚗 Transportation</span><strong id="cost-transport">—</strong></div>
               <div class="cost-row"><span>🏥 Medical</span><strong id="cost-medical">—</strong></div>
-              <div class="cost-row"><span>📱 Internet & Mobile</span><strong id="cost-internet">—</strong></div>
+              <div class="cost-row"><span>📱 Internet &amp; Mobile</span><strong id="cost-internet">—</strong></div>
               <div class="cost-row"><span>🏛️ Civic</span><strong id="cost-civic">—</strong></div>
               <div class="cost-row"><span>📦 Other</span><strong id="cost-other">—</strong></div>
             </div>
@@ -91,114 +375,86 @@
               <span>Monthly Cost of Living</span>
               <strong id="cost-total">—</strong>
             </div>
-            
+            <!-- Post-tax survival income: REMOVED -->
           </div>
         </div>
 
       </div>
+
       <div class="sim-nav">
-        <button class="btn btn-secondary" onclick="goTo(0)">← Back</button>
-        <button class="btn btn-primary" id="btn-1-next" onclick="goTo(2)" disabled>Next: Your Audience →</button>
+        <button class="btn btn-secondary" onclick="goTo(0)">Back</button>
+        <button class="btn btn-primary" id="btn-1-next" onclick="goTo(2)" disabled>Next: Your Audience</button>
       </div>
     </section>
 
-
-
-  <!-- ============================================================
-     SCREEN 2: AUDIENCE
-     ============================================================ -->
-
-<section class="sim-screen" id="screen-2">
-  <div class="sim-two-col">
+    <!-- ============================================================
+         SCREEN 2: AUDIENCE
+         ============================================================ -->
+    <section class="sim-screen" id="screen-2">
+      <div class="sim-two-col">
 
     <!-- LEFT: Audience Builder -->
     <div class="sim-col-main">
-      <div class="kicker">Step 2 of 4</div>
+      <div class="kicker">Step 2 of 5</div>
       <h2 class="h2">Define Your Audience</h2>
       <p class="note">Define your reach, then how strongly your audience engages.</p>
 
-      <!-- =========================
-           STREAMING
-           ========================= -->
-      <div class="form-group" style="margin-top:24px;">
-        <label>Streaming Platforms</label>
-        <div class="checkbox-group">
-          <label><input type="checkbox" class="aud-platform" value="spotify" onchange="onAudienceChange()"> Spotify</label>
-          <label><input type="checkbox" class="aud-platform" value="instagram" onchange="onAudienceChange()"> Instagram</label>
-          <label><input type="checkbox" class="aud-platform" value="tiktok" onchange="onAudienceChange()"> TikTok</label>
-          <label><input type="checkbox" class="aud-platform" value="youtube" onchange="onAudienceChange()"> YouTube</label>
+          <div class="form-group" style="margin-top:24px;">
+            <label>Streaming Platforms</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" class="aud-platform" value="spotify" onchange="onAudienceChange()"> Spotify</label>
+              <label><input type="checkbox" class="aud-platform" value="instagram" onchange="onAudienceChange()"> Instagram</label>
+              <label><input type="checkbox" class="aud-platform" value="tiktok" onchange="onAudienceChange()"> TikTok</label>
+              <label><input type="checkbox" class="aud-platform" value="youtube" onchange="onAudienceChange()"> YouTube</label>
+            </div>
+          </div>
+
+          <div id="audience-streaming-size" class="form-group" style="display:none; margin-top:12px;">
+            <label>Streaming Audience Size</label>
+            <select id="streaming-size" class="sim-select" onchange="onAudienceChange()">
+              <option value="">— Select size —</option>
+              <option value="nano">Nano (5K–20K)</option>
+              <option value="micro">Micro (20K–100K)</option>
+              <option value="mid">Mid (100K–500K)</option>
+              <option value="macro">Macro (500K+)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-top:28px;">
+            <label>Live Performances</label>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="aud-live" onchange="onAudienceChange()">
+                Enable live shows
+              </label>
+            </div>
+          </div>
+
+          <div id="audience-live-size" class="form-group" style="display:none; margin-top:12px;">
+            <label>Venue Size</label>
+            <select id="live-size" class="sim-select" onchange="onAudienceChange()">
+              <option value="">— Select venue —</option>
+              <option value="small">Small Club (100–300)</option>
+              <option value="medium">Mid Venue (300–1K)</option>
+              <option value="large">Large Venue (1K–5K)</option>
+              <option value="arena">Arena (5K+)</option>
+            </select>
+            <p class="slider-hint" style="margin-top:6px;">Attendance depends on fan engagement</p>
+          </div>
+
+          <div class="slider-group engagement-block" style="margin-top:32px;">
+            <label>🔥 Fan Engagement (Drives Attendance &amp; Conversion)</label>
+            <input type="range" id="slider-fanstrength" min="0" max="100" step="10" value="0" oninput="onAudienceChange()" />
+            <div class="slider-ticks">
+              <span>Passive</span>
+              <span>Casual</span>
+              <span>Engaged</span>
+              <span>Core</span>
+              <span>Superfans</span>
+            </div>
+            <p class="slider-hint">This determines how many fans actually show up and spend.</p>
+          </div>
         </div>
-      </div>
-
-      <!-- Streaming Size -->
-      <div id="audience-streaming-size" class="form-group" style="display:none; margin-top:12px;">
-        <label>Streaming Audience Size</label>
-        <select id="streaming-size" class="sim-select" onchange="onAudienceChange()">
-          <option value="">— Select size —</option>
-          <option value="nano">Nano (5K–20K)</option>
-          <option value="micro">Micro (20K–100K)</option>
-          <option value="mid">Mid (100K–500K)</option>
-          <option value="macro">Macro (500K+)</option>
-        </select>
-      </div>
-
-      <!-- =========================
-           LIVE PERFORMANCE
-           ========================= -->
-      <div class="form-group" style="margin-top:28px;">
-        <label>Live Performances</label>
-        <div class="checkbox-group">
-          <label>
-            <input type="checkbox" id="aud-live" onchange="onAudienceChange()">
-            Enable live shows
-          </label>
-        </div>
-      </div>
-
-      <!-- Live Size -->
-      <div id="audience-live-size" class="form-group" style="display:none; margin-top:12px;">
-        <label>Venue Size</label>
-        <select id="live-size" class="sim-select" onchange="onAudienceChange()">
-          <option value="">— Select venue —</option>
-          <option value="small">Small Club (100–300)</option>
-          <option value="medium">Mid Venue (300–1K)</option>
-          <option value="large">Large Venue (1K–5K)</option>
-          <option value="arena">Arena (5K+)</option>
-        </select>
-
-        <p class="slider-hint" style="margin-top:6px;">
-          Attendance depends on fan engagement
-        </p>
-      </div>
-
-      <!-- =========================
-           FAN ENGAGEMENT (EMPHASIZED)
-           ========================= -->
-      <div class="slider-group engagement-block" style="margin-top:32px;">
-        <label>🔥 Fan Engagement (Drives Attendance & Conversion)</label>
-
-        <input type="range"
-               id="slider-fanstrength"
-               min="0"
-               max="100"
-               step="10"
-               value="0"
-               oninput="onAudienceChange()" />
-
-        <div class="slider-ticks">
-          <span>Passive</span>
-          <span>Casual</span>
-          <span>Engaged</span>
-          <span>Core</span>
-          <span>Superfans</span>
-        </div>
-
-        <p class="slider-hint">
-          This determines how many fans actually show up and spend.
-        </p>
-      </div>
-
-    </div>
 
     <!-- RIGHT: Profile -->
     <div class="sim-col-side">
@@ -222,424 +478,241 @@
 
         <div class="profile-stat" style="margin-top:16px;">
           <span>How this works</span>
-          <div id="logic-output" style="margin-top:6px;">
-  <div class="explainer-step">
-    <span class="step-num">1</span>
-    <span class="step-text">
-      Select platforms or live performance to define your reach.
-    </span>
-  </div>
-
-  <div class="explainer-step">
-    <span class="step-num">2</span>
-    <span class="step-text">
-      Set your fan engagement to determine how many people actually show up and spend.
-    </span>
-  </div>
-</div>
+          <div id="logic-output" style="font-size:13px; line-height:1.5; margin-top:6px;">
+            Select inputs to see how demand converts into income.
+          </div>
         </div>
 
       </div>
     </div>
 
-  </div>
+      </div>
 
   <div class="sim-nav">
-    <button class="btn btn-secondary" onclick="goTo(1)">← Back</button>
-    <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy →</button>
+    <button class="btn btn-secondary" onclick="goTo(1)">Back</button>
+    <button class="btn btn-primary" onclick="goTo(3)">Next: Your Strategy</button>
   </div>
 </section>
-   <!-- ============================================================
-     SCREEN 3: STRATEGY
-     ============================================================ -->
-<section class="sim-screen" id="screen-3">
-
+    <!-- ============================================================
+         SCREEN 3: STRATEGY
+         ============================================================ -->
+   <section class="sim-screen" id="screen-3">
   <div class="sim-two-col">
 
-    <!-- =========================
-         LEFT: CONTROLS
-         ========================= -->
+    <!-- LEFT: Controls -->
     <div class="sim-col-main">
-
-      <div class="kicker">Step 3 of 4</div>
-      <h2 class="h2">Tune Your Income Strategy</h2>
+      <div class="kicker">Step 3 of 5</div>
+      <h2 class="h2">Tune Your Income Engines</h2>
 
       <p class="note">
-        This is where your audience turns into income — streaming builds reach, performing generates revenue, and merch amplifies fan spending.
+        This is where your audience turns into income.
+      </p>
+
+      <p class="note">
+        Streaming builds reach. Touring generates revenue. Merch amplifies fan spending.
       </p>
 
       <!-- =========================
-           STREAMING
+           TOURING (PRIMARY DRIVER)
            ========================= -->
-      <div class="form-group strategy-step" data-step="1">
-        <div class="step-header">
-          <span class="step-number">01</span>
-          <div>
-            <label>🎵 Streaming Strategy</label>
-            <p class="micro">Build your audience reach</p>
-          </div>
-        </div>
+      <div class="form-group">
+        <label>🎤 Touring Intensity</label>
+        <p class="micro">Live shows are your most direct source of income</p>
 
-        <div class="slider-group">
-          <label>Release Activity</label>
-          <p class="slider-hint">Frequency of releases and content</p>
-
-          <input type="range"
-                 id="strat-streaming"
-                 min="0"
-                 max="100"
-                 step="1"
-                 value="0"
-                 oninput="onStrategyChange()" />
-                 <div class="strat-value" id="val-streaming">0</div>
-
-          
-        </div>
-      </div>
-
-      <!-- =========================
-           LIVE PERFORMANCE
-           ========================= -->
-      <div class="form-group strategy-step" data-step="2">
-        <div class="step-header">
-          <span class="step-number">02</span>
-          <div>
-            <label>🎤 Live Performance</label>
-            <p class="micro">Convert your audience into local live revenue</p>
-          </div>
-        </div>
-
+        <!-- Shows per month -->
         <div class="slider-group">
           <label>Shows per Month</label>
-          <p class="slider-hint">How often you perform</p>
-
-          <input type="range"
-                 id="slider-shows"
-                 min="0"
-                 max="20"
-                 value="0"
+          <input type="range" id="slider-shows" min="1" max="20" value="4"
                  oninput="onTouringChange()" />
-                 <div class="strat-value" id="val-shows">0</div>
-
-          
+          <p class="slider-hint">How often you perform</p>
         </div>
 
+        <!-- Artist cut -->
         <div class="slider-group">
           <label>Artist Cut (%)</label>
-          <p class="slider-hint">Your share of ticket revenue</p>
-
-          <input type="range"
-                 id="slider-cut"
-                 min="0"
-                 max="100"
-                 value="0"
+          <input type="range" id="slider-cut" min="10" max="30" value="15"
                  oninput="onTouringChange()" />
-                 <div class="strat-value" id="val-cut">0%</div>
-
-          
+          <p class="slider-hint">Your share of ticket revenue</p>
         </div>
       </div>
 
       <!-- =========================
-           FAN MONETIZATION
+           MERCH (CONVERSION LAYER)
            ========================= -->
-      <div class="form-group strategy-step" data-step="3">
-        <div class="step-header">
-          <span class="step-number">03</span>
-          <div>
-            <label>👕 Fan Monetization</label>
-            <p class="micro">Maximize value per fan</p>
-          </div>
-        </div>
+      <div class="form-group">
+        <label>👕 Fan Monetization</label>
+        <p class="micro">How well you convert fans into paying customers</p>
 
         <div class="slider-group">
           <label>Merch Attach Rate (%)</label>
-          <p class="slider-hint">% of fans who buy something</p>
-
-          <input type="range"
-                 id="slider-attach"
-                 min="0"
-                 max="30"
-                 value="0"
+          <input type="range" id="slider-attach" min="1" max="30" value="10"
                  oninput="onMerchChange()" />
-                 <div class="strat-value" id="val-attach">0%</div>
+          <p class="slider-hint">% of fans who buy something</p>
+        </div>
+      </div>
 
-         
+      <!-- =========================
+           STREAMING (SCALE ENGINE)
+           ========================= -->
+      <div class="form-group">
+        <label>🎵 Streaming Strategy</label>
+        <p class="micro">How aggressively you grow your audience</p>
+
+        <div class="slider-group">
+          <label>Release Activity</label>
+          <input type="range" id="strat-streaming" min="1" max="10" value="5"
+                 oninput="onStrategyChange()" />
+          <p class="slider-hint">Frequency of releases and content</p>
         </div>
       </div>
 
     </div>
 
-    <!-- =========================
-         RIGHT: OUTPUT
-         ========================= -->
-    <div class="sim-col-side">
+    <!-- RIGHT: System Feedback -->
+<div class="sim-col-side">
+  <div class="side-panel strategy-panel">
 
-      <div class="side-panel strategy-panel">
+    <!-- Top Summary Cards -->
+    <div class="strategy-cards">
 
-        <div class="income-system">
-
-          <h4>Income Breakdown</h4>
-
-          <!-- PIE + OVERLAY -->
-          <div class="income-overlay">
-
-            <div class="income-chart">
-              <canvas id="chart-income" width="200" height="200"></canvas>
-            </div>
-
-            <div class="strategy-cards overlay-cards">
-
-              <div class="strategy-card">
-                <div class="card-title">🎵 Streaming Strategy</div>
-                <div class="card-value balanced" id="profile-streaming-focus">—</div>
-                <div class="card-desc">Audience growth focus</div>
-              </div>
-
-              <div class="strategy-card">
-                <div class="card-title">🎤 Live Performance</div>
-                <div class="card-value high" id="profile-touring-focus">—</div>
-                <div class="card-desc">Live show-driven income</div>
-              </div>
-
-              <div class="strategy-card">
-                <div class="card-title">👕 Fan Monetization</div>
-                <div class="card-value weak" id="profile-merch-focus">—</div>
-                <div class="card-desc">Merch conversion strength</div>
-              </div>
-
-            </div>
-
-          </div>
-
-          <!-- INSIGHT -->
-          <div class="insight-box">
-            <strong>What This Means</strong>
-            <p id="reaction-message">
-              Adjust your inputs to see how your income model shifts.
-            </p>
-          </div>
-
-        </div>
-
+      <div class="strategy-card">
+        <div class="card-title">🎤 Touring Focus</div>
+        <div class="card-value high" id="profile-touring-focus">—</div>
+        <div class="card-desc">Live show driven income</div>
       </div>
 
+      <div class="strategy-card">
+        <div class="card-title">👕 Fan Monetization</div>
+        <div class="card-value weak" id="profile-merch-focus">—</div>
+        <div class="card-desc">Merch conversion strength</div>
+      </div>
+
+      <div class="strategy-card">
+        <div class="card-title">🎵 Growth Strategy</div>
+        <div class="card-value balanced" id="profile-streaming-focus">—</div>
+        <div class="card-desc">Audience growth focus</div>
+      </div>
+
+    </div>
+
+    <!-- Explanation -->
+    <div class="insight-box">
+      <strong>What This Means</strong>
+      <p id="reaction-message">
+        Adjust your inputs to see how your income model shifts.
+      </p>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Income Breakdown -->
+    <div class="income-section">
+      <h4>Income Breakdown</h4>
+
+      <div class="income-chart-row">
+        <canvas id="chart-income" width="180" height="180"></canvas>
+
+        <div class="income-legend">
+          <div><span class="dot streaming"></span> Streaming</div>
+          <div><span class="dot touring"></span> Touring</div>
+          <div><span class="dot merch"></span> Merch</div>
+        </div>
+      </div>
     </div>
 
   </div>
+</div>
 
-  <!-- NAV -->
+  
+
+  </div>
   <div class="sim-nav">
-    <button class="btn btn-secondary" onclick="goTo(2)">← Back</button>
-    <button class="btn btn-primary" onclick="goTo(4)">Next: See Your Results →</button>
+    <button class="btn btn-secondary" onclick="goTo(2)">Back</button>
+    <button class="btn btn-primary" onclick="goTo(4)">Next: See Your Results</button>
   </div>
-
 </section>
 
-
-  <!-- =========================
-       HEADLINE RESULT
-       ========================= -->
-
+   <!-- ============================================================
+     SCREEN 4: VIABILITY REPORT
+     ============================================================ -->
 <section class="sim-screen" id="screen-4">
+  <div class="kicker">Step 4 of 4</div>
+  <h2 class="h2">Your Viability Report</h2>
+  <p class="note">
+    This is the outcome of your strategy — how your audience converts into income.
+  </p>
 
-  <!-- =========================
-       HEADLINE RESULT
-       ========================= -->
-  <div class="verdict-banner" id="verdict-banner">
-    <div class="verdict-income" id="verdict-income">$0 / mo</div>
-    <div class="verdict-status" id="verdict-status">—</div>
-    <div class="verdict-delta" id="verdict-delta">—</div>
-  </div>
+      <div class="verdict-banner" id="verdict-banner">
+        <div class="verdict-income" id="verdict-income">$0 / mo</div>
+        <div class="verdict-status" id="verdict-status">—</div>
+        <div class="verdict-delta" id="verdict-delta">—</div>
+      </div>
 
   <div class="results-grid">
 
-    <!-- =========================
-         LEFT COLUMN
-         ========================= -->
+    <!-- LEFT: Strategy + Profile -->
     <div class="results-col">
 
-      <!-- 🔍 EXPLANATION -->
-      <div class="results-section">
-        <h3>What This Means</h3>
-        <div class="insight-box" id="final-explanation">
-          Your strategy results will be explained here.
-        </div>
-      </div>
+      <h3>Your Strategy</h3>
+      <div class="result-card"><span>🎤 Touring</span><strong id="res-strategy-touring">—</strong></div>
+      <div class="result-card"><span>👕 Merch</span><strong id="res-strategy-merch">—</strong></div>
+      <div class="result-card"><span>🎵 Streaming</span><strong id="res-strategy-streaming">—</strong></div>
 
-      <!-- 👤 PROFILE -->
-      <div class="results-section">
+      <div class="results-section" style="margin-top:24px;">
         <h3>Your Artist Profile</h3>
         <div class="persona-card" id="persona-card"></div>
       </div>
 
-      <!-- 🧠 STRATEGY SUMMARY -->
-      <div class="results-section">
-        <h3>Your Strategy Mix</h3>
-
-        <div class="result-card">
-          <span>🎵 Streaming</span>
-          <strong id="res-strategy-streaming">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>🎤 Live Performances</span>
-          <strong id="res-strategy-touring">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>👕 Merch</span>
-          <strong id="res-strategy-merch">—</strong>
-        </div>
-      </div>
-
     </div>
 
-    <!-- =========================
-         RIGHT COLUMN
-         ========================= -->
+    <!-- RIGHT: Income + Chart -->
     <div class="results-col">
 
-      <!-- 📊 CHART -->
-      <div class="results-section">
-        <h3>Income Breakdown</h3>
-        <canvas id="chart-income-final" width="260" height="260"></canvas>
-      </div>
+      <h3>Income Breakdown</h3>
+      <canvas id="chart-income-final" width="260" height="260"></canvas>
 
-      <!-- 💰 NUMBERS -->
-      <div class="results-section">
+      <div class="result-card"><span>🎵 Streaming</span><strong id="res-streaming">—</strong></div>
+      <div class="result-card"><span>🎤 Touring</span><strong id="res-touring">—</strong></div>
+      <div class="result-card"><span>👕 Merch</span><strong id="res-merch">—</strong></div>
+      <div class="result-card total"><span>Total</span><strong id="res-total">—</strong></div>
 
-        <div class="result-card">
-          <span>🎵 Streaming</span>
-          <strong id="res-streaming">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>🎤 Live Performances</span>
-          <strong id="res-touring">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>👕 Merch</span>
-          <strong id="res-merch">—</strong>
-        </div>
-
-        <div class="result-card total">
-          <span>Total Income</span>
-          <strong id="res-total">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>Cost of Living</span>
-          <strong id="res-cost">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>Net</span>
-          <strong id="res-net">—</strong>
-        </div>
-
-      </div>
+      <div class="result-card"><span>Cost of Living</span><strong id="res-cost">—</strong></div>
+      <div class="result-card"><span>Net</span><strong id="res-net">—</strong></div>
 
     </div>
 
   </div>
 
-  <!-- =========================
-       RECOMMENDATIONS
-       ========================= -->
-  <div class="results-section">
-    <h3>How to Improve Your Income</h3>
-    <div id="recommendations-list"></div>
-  </div>
+      <div class="results-section">
+        <h3>How to Improve Your Income</h3>
+        <div id="recommendations-list"></div>
+      </div>
 
-  <!-- =========================
-       CTA
-       ========================= -->
-  <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
-    <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
-    <button class="btn btn-secondary" onclick="goTo(1)">Change City</button>
+  <!-- NAV -->
+  <div class="sim-nav">
+    <button class="btn btn-secondary" onclick="goTo(3)">Adjust Strategy</button>
     <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
   </div>
 
-</section>
+
+
+      <!-- CTAs -->
+      <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="goTo(3)">Adjust Strategy</button>
+        <button class="btn btn-secondary" onclick="goTo(1)">Change City</button>
+        <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
+      </div>
+
+    </section>
 
   </main>
 
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- <script src="js/data.js" defer></script>
-<script src="js/simulator.js" defer></script>
- <script>
-function updateLogicExplanation() {
-  const el = document.getElementById("logic-output");
-  if (!el) return;
-
-  const selectedPlatforms = Array.from(
-    document.querySelectorAll(".aud-platform:checked")
-  );
-
-  const streamingEnabled = selectedPlatforms.length > 0;
-  const streamingSize = document.getElementById('streaming-size')?.value;
-
-  const liveEnabled = document.getElementById('aud-live')?.checked;
-  const liveSize = document.getElementById('live-size')?.value;
-
-  const fanMult = S.fanStrength / 100;
-
-  let html = "";
-
-  // --- Streaming ---
-  if (streamingEnabled && streamingSize) {
-    const tierMap = {
-      nano: "Nano",
-      micro: "Micro",
-      mid: "Mid",
-      macro: "Macro"
-    };
-
-    const tierName = tierMap[streamingSize];
-    const streams = TIER_STREAMS[tierName].mid;
-    const engagedFans = Math.round(streams * fanMult);
-
-    html += `
-      <strong>Streaming</strong><br>
-      ${streams.toLocaleString()} listeners<br>
-      → ${engagedFans.toLocaleString()} engaged fans<br>
-    `;
-  }
-
-  // --- Live ---
-  if (liveEnabled && liveSize) {
-    const venue = LIVE_VENUES[liveSize];
-
-    if (venue) {
-      const attendanceRate = 0.4 + (fanMult * 0.5);
-      const attendance = Math.round(venue.cap * attendanceRate);
-
-      html += `
-        <br>
-        <strong>Live</strong><br>
-        ${venue.cap} capacity venue<br>
-        → ${attendance} expected attendees<br>
-      `;
-    }
-  }
-
-  if (streamingEnabled && liveEnabled) {
-    html += `<br><em>Streaming builds demand. Live shows convert it into revenue.</em>`;
-  } else if (streamingEnabled) {
-    html += `<br><em>You are building reach, but monetization is limited.</em>`;
-  } else if (liveEnabled) {
-    html += `<br><em>You rely on direct fan conversion rather than scale.</em>`;
-  }
-
-  if (!html) {
-    html = "Select inputs to see how demand converts into income.";
-  }
-
-  el.innerHTML = html;
-}
-</script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <!-- Data layer -->
+  <script src="js/data.js" defer></script>
+  <!-- Simulator logic -->
+  <script src="js/simulator.js" defer></script>
 </body>
 </html>
