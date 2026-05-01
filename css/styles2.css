@@ -69,21 +69,18 @@ img {
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .brand-mark {
-  width: 42px;
-  height: 26px;
-  display: inline-block;
-  flex-shrink: 0;
-  background-image: url("../assets/streamonomics-logo-clean.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--gold);
+  box-shadow: 0 0 0 6px rgba(217, 173, 75, 0.15);
 }
 
 .nav {
