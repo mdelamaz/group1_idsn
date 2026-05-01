@@ -15,6 +15,10 @@ let S = {
   audienceTier: 0,      // 0=Nano, 1=Micro, 2=Mid, 3=Macro
   fanStrength:  0,     // 0–100
 
+
+  streamingActivity: 0,
+
+
   // Screen 3
   strategy: {
     streaming: 5,       // 1–10
@@ -95,16 +99,10 @@ function goTo(n) {
   currentScreen = n;
 
   // On entering screen 4, calculate and populate engines
-  if (n === 4) {
-    calcIncome();
-    populateEngines();
-  }
-
-  // On entering screen 5, calculate and populate results
-  if (n === 5) {
-    calcIncome();
-    populateResults();
-  }
+ if (n === 4) {
+  calcIncome();
+  populateResults();
+}
 
   // Scroll to top
   window.scrollTo(0, 0);
@@ -308,10 +306,29 @@ if (liveBlock) {
       text += "You have superfans — strong loyalty and high monetization potential.";
     }
 
-    logicEl.innerText = text;
+    logicEl.innerHTML = `
+  <div class="explainer-step">
+    <span class="step-num">1</span>
+    <span class="step-text">
+      ${selectedPlatforms.length > 0 || liveEnabled
+        ? "You’ve defined your audience channels."
+        : "Select platforms or live performance to define your reach."}
+    </span>
+  </div>
+
+  <div class="explainer-step">
+    <span class="step-num">2</span>
+    <span class="step-text">
+      ${S.fanStrength > 0
+        ? "Fan engagement determines how many people actually convert."
+        : "Set your fan engagement to determine how many people show up and spend."}
+    </span>
+  </div>
+`;
   }
 
   updateStatusBar();
+  updateStrategyAvailability();
 }
 
 // =============================================================
@@ -319,10 +336,26 @@ if (liveBlock) {
 // =============================================================
 
 function onStrategyChange() {
-  S.streamingActivity = parseInt(document.getElementById('strat-streaming')?.value || 0);
+  const val = parseInt(document.getElementById('strat-streaming')?.value || 0);
+
+  S.streamingActivity = val;
+
+  let label = "";
+
+  if (val < 33) {
+    label = "No releases";
+  } else if (val < 66) {
+    label = "Monthly drops";
+  } else {
+    label = "Weekly releases";
+  }
+
+  S.streamingActivityLabel = label;
+
+  const el = document.getElementById('val-streaming');
+  if (el) el.textContent = label;
 
   calcIncome();
-  updateStatusBar();
   updateStrategyFeedback();
   updateIncomeChart();
 }
@@ -330,6 +363,9 @@ function onStrategyChange() {
 function onTouringChange() {
   S.showsPerMonth = parseInt(document.getElementById('slider-shows')?.value || 4);
   S.artistCut     = parseInt(document.getElementById('slider-cut')?.value || 15);
+
+  document.getElementById('val-shows').textContent = S.showsPerMonth;
+  document.getElementById('val-cut').textContent = S.artistCut + "%";
 
   calcIncome();
   updateStatusBar();
@@ -339,6 +375,8 @@ function onTouringChange() {
 
 function onMerchChange() {
   S.attachRate = parseInt(document.getElementById('slider-attach')?.value || 10);
+
+  document.getElementById('val-attach').textContent = S.attachRate + "%";
 
   calcIncome();
   updateStatusBar();
@@ -361,14 +399,50 @@ function updateIncomeChart() {
     window.chartIncome.destroy();
   }
 
-  const values = [
-    S.income.streaming,
-    S.income.touring,
-    S.income.merch
-  ];
+  const labels = [];
+  const values = [];
+  const colors = [];
+
+  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+
+  // =========================
+  // STREAMING
+  // =========================
+  if (streamingEnabled) {
+    labels.push('Streaming');
+    values.push(S.income.streaming || 1); // ensures visibility even at 0
+    colors.push('#6366f1'); // purple
+  }
+
+  // =========================
+  // LIVE
+  // =========================
+  if (liveEnabled) {
+    labels.push('Live');
+    values.push(S.income.touring || 1);
+    colors.push('#10b981'); // green
+  }
+
+  // =========================
+  // MERCH (OPTIONAL)
+  // =========================
+  if (S.attachRate > 0) {
+    labels.push('Merch');
+    values.push(S.income.merch || 1);
+    colors.push('#f59e0b'); // orange
+  }
+
+  // =========================
+  // EDGE CASE: NOTHING SELECTED
+  // =========================
+  if (labels.length === 0) {
+    labels.push('No Income');
+    values.push(1);
+    colors.push('#e5e7eb');
+  }
 
   const total = values.reduce((a, b) => a + b, 0);
-  const safeValues = total === 0 ? [1, 1, 1] : values;
 
   function pct(val) {
     if (total === 0) return "—";
@@ -383,28 +457,36 @@ function updateIncomeChart() {
   if (el2) el2.textContent = pct(S.income.touring);
   if (el3) el3.textContent = pct(S.income.merch);
 
+  // =========================
+  // BUILD CHART
+  // =========================
   window.chartIncome = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: ['Streaming', 'Touring', 'Merch'],
+      labels: labels,
       datasets: [{
-        data: safeValues,
-        backgroundColor: [
-          '#6366f1',
-          '#10b981',
-          '#f59e0b'
-        ]
+        data: values,
+        backgroundColor: colors
       }]
     },
     options: {
       responsive: false,
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.raw;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = Math.round((value / total) * 100);
+              return `${context.label}: $${Math.round(value).toLocaleString()} (${pct}%)`;
+            }
+          }
+        }
       }
     }
   });
 }
-
 
 // =============================================================
 //  STRATEGY FEEDBACK (UNCHANGED)
@@ -415,6 +497,23 @@ function updateStrategyFeedback() {
   const touringEl = document.getElementById('profile-touring-focus');
   const merchEl = document.getElementById('profile-merch-focus');
   const streamingEl = document.getElementById('profile-streaming-focus');
+  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+
+  if (!streamingEnabled && liveEnabled) {
+  msg.textContent = "You rely entirely on live performance. Expanding your online presence could significantly grow your audience and income.";
+  return;
+}
+
+if (streamingEnabled && !liveEnabled) {
+  msg.textContent = "You are building an audience online but not converting it through live shows. Performing could unlock meaningful revenue.";
+  return;
+}
+
+if (!streamingEnabled && !liveEnabled) {
+  msg.textContent = "You currently have no active audience channels. You need to build reach before income becomes viable.";
+  return;
+}
 
   if (!msg || !touringEl || !merchEl || !streamingEl) return;
 
@@ -427,8 +526,8 @@ function updateStrategyFeedback() {
   else if (S.attachRate > 10) merchLevel = "Moderate";
 
   let streamingLevel = "Light";
-  if (S.streamingActivity > 7) streamingLevel = "Aggressive";
-  else if (S.streamingActivity > 4) streamingLevel = "Balanced";
+if (S.streamingActivity > 66) streamingLevel = "Aggressive";
+else if (S.streamingActivity > 33) streamingLevel = "Balanced";
 
   touringEl.textContent = touringLevel;
   merchEl.textContent = merchLevel;
@@ -457,10 +556,39 @@ function updateStrategyFeedback() {
 
 
 // =============================================================
+//  STRATEGY AVAILABILITY BASED ON STEP 2 AUDIENCE SELECTONS
+// =============================================================
+
+function updateStrategyAvailability() {
+  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+
+  const streamingBlock = document.querySelector('[data-step="1"]');
+  const liveBlock = document.querySelector('[data-step="2"]');
+
+  if (streamingBlock) {
+    streamingBlock.style.opacity = streamingEnabled ? "1" : "0.4";
+    streamingBlock.style.pointerEvents = streamingEnabled ? "auto" : "none";
+  }
+
+  if (liveBlock) {
+    liveBlock.style.opacity = liveEnabled ? "1" : "0.4";
+    liveBlock.style.pointerEvents = liveEnabled ? "auto" : "none";
+  }
+}
+
+// =============================================================
 //  CORE INCOME CALCULATION (FIXED MODEL)
 // =============================================================
 
 function calcIncome() {
+
+
+  console.log("INPUTS:", {
+  streaming: S.streamingActivity,
+  shows: S.showsPerMonth,
+  merch: S.attachRate
+});
 
   S.income.streaming = 0;
   S.income.social = 0;
@@ -470,31 +598,20 @@ function calcIncome() {
 
   const fanMult = S.fanStrength / 100;
 
-  // ==========================
-  // BASE VALUES (same scale)
-  // ==========================
-
   const baseStreaming = 1000;
   const baseTouring   = 1000;
   const baseMerch     = 1000;
 
-  // ==========================
-  // STRATEGY WEIGHTS
-  // ==========================
-
-  const wStreaming = Math.pow((S.streamingActivity || 0) / 10, 1.5);
-  const wTouring   = Math.pow(S.showsPerMonth / 10, 1.3);
-  const wMerch     = Math.pow(S.attachRate / 30, 1.4);
+  const wStreaming = S.streamingActivity / 100; 
+  const cutMultiplier = S.artistCut / 100;
+  const wTouring = (S.showsPerMonth / 10) * cutMultiplier;
+  const wMerch     = S.attachRate / 30;
 
   const totalW = wStreaming + wTouring + wMerch || 1;
 
   const nStreaming = wStreaming / totalW;
   const nTouring   = wTouring / totalW;
   const nMerch     = wMerch / totalW;
-
-  // ==========================
-  // FINAL INCOME
-  // ==========================
 
   S.income.streaming = baseStreaming * nStreaming;
   S.income.touring   = baseTouring   * nTouring;
@@ -507,63 +624,84 @@ function calcIncome() {
     S.income.social +
     S.income.touring +
     S.income.merch;
+
+  // ✅ MOVE THESE INSIDE
+  console.log("INCOME TOTAL:", S.income.total);
+  updateStatusBar();
 }
+
 // =============================================================
-//  SCREEN 4: POPULATE ENGINE CARDS
+//  SCREEN 4: FINAL CHART
 // =============================================================
 
-function populateEngines() {
-  const tierName = TIER_NAMES[S.audienceTier];
-  const streams  = TIER_STREAMS[tierName].mid;
-  const fanMult  = S.fanStrength / 100;
-  const venue    = VENUE_TYPES[tierName];
-  const attendance = Math.round(venue.cap * fanMult);
+function buildFinalChart() {
+  const canvas = document.getElementById('chart-income-final');
+  if (!canvas) return;
 
-  // Streaming
-  const spotifyCPM = CPM[tierName] ? CPM[tierName]['spotify'] : 0;
-  document.getElementById('eng-stream-tier').textContent   = tierName;
-  document.getElementById('eng-stream-count').textContent  = streams.toLocaleString();
-  document.getElementById('eng-stream-cpm').textContent    = spotifyCPM ? '$' + spotifyCPM : 'N/A';
-  document.getElementById('eng-stream-income').textContent = fmt(S.income.streaming);
+  const ctx = canvas.getContext('2d');
 
-  // Social
-  const socialPlatforms = ['youtube', 'instagram', 'tiktok'];
-  let bestCPM = 0, bestPlatform = 'YouTube';
-  socialPlatforms.forEach(p => {
-    const cpm = CPM[tierName] && CPM[tierName][p];
-    if (cpm && cpm > bestCPM) { bestCPM = cpm; bestPlatform = p; }
-  });
-  document.getElementById('eng-social-platform').textContent = capitalize(bestPlatform);
-  document.getElementById('eng-social-reach').textContent    = Math.round(streams * 0.3).toLocaleString();
-  document.getElementById('eng-social-cpm').textContent      = bestCPM ? '$' + bestCPM : 'N/A';
-  document.getElementById('eng-social-income').textContent   = fmt(S.income.social);
+  if (window.finalChart) {
+    window.finalChart.destroy();
+  }
 
-  // Touring
-  document.getElementById('eng-tour-venue').textContent   = venue.label;
-  document.getElementById('eng-tour-cap').textContent     = venue.cap.toLocaleString();
-  document.getElementById('eng-tour-ticket').textContent  = '$' + venue.ticket;
-  document.getElementById('eng-tour-income').textContent  = fmt(S.income.touring);
+  const labels = [];
+  const values = [];
+  const colors = [];
 
-  // Merch
-  document.getElementById('eng-merch-attendance').textContent = (attendance * S.showsPerMonth).toLocaleString() + ' fans/mo';
-  document.getElementById('eng-merch-income').textContent     = fmt(S.income.merch);
+  if (S.income.streaming > 0) {
+    labels.push('Streaming');
+    values.push(S.income.streaming);
+    colors.push('#6366f1');
+  }
 
-  // Summary bar
-  document.getElementById('sum-streaming').textContent = fmt(S.income.streaming);
-  document.getElementById('sum-social').textContent    = fmt(S.income.social);
-  document.getElementById('sum-touring').textContent   = fmt(S.income.touring);
-  document.getElementById('sum-merch').textContent     = fmt(S.income.merch);
-  document.getElementById('sum-total').textContent     = fmt(S.income.total);
+  if (S.income.touring > 0) {
+    labels.push('Live');
+    values.push(S.income.touring);
+    colors.push('#10b981');
+  }
 
-  if (S.city && CITIES[S.city]) {
-    const data  = CITIES[S.city];
-    const cost  = data.housing + data.food + data.transportation +
-                  data.medical + data.internet + data.civic + data.other;
-    const net   = S.income.total - cost;
-    document.getElementById('sum-cost').textContent = fmt(cost);
-    document.getElementById('sum-net').textContent  = fmt(net);
+  if (S.income.merch > 0) {
+    labels.push('Merch');
+    values.push(S.income.merch);
+    colors.push('#f59e0b');
+  }
+
+  if (values.length === 0) {
+    labels.push('No Income');
+    values.push(1);
+    colors.push('#e5e7eb');
+  }
+
+  window.finalChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors
+      }]
+    },
+   options: {
+  responsive: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          const value = context.raw;
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const pct = Math.round((value / total) * 100);
+          return `${context.label}: $${value.toLocaleString()} (${pct}%)`;
+        }
+      }
+    }
   }
 }
+  });
+}
+
+
+
 
 // =============================================================
 //  SCREEN 5: RESULTS
@@ -572,51 +710,88 @@ function populateEngines() {
 
 
 function populateResults() {
-  const data    = CITIES[S.city];
-  const cost    = data.housing + data.food + data.transportation +
-                  data.medical + data.internet + data.civic + data.other;
-  const net     = S.income.total - cost;
-  
+  if (!S.city || !CITIES[S.city]) return;
 
-  // Verdict
-  let status, statusClass;
-  if (S.income.total < cost * 0.7)         { status = '🔴 Below Survival';  statusClass = 'verdict-red';    }
-  else if (S.income.total < cost)           { status = '🟡 Below Living Wage'; statusClass = 'verdict-yellow'; }
-  else if (S.income.total < data.postTaxMin * 1.2) { status = '🟢 Sustainable'; statusClass = 'verdict-green';  }
-  else                                      { status = '🚀 Scalable';        statusClass = 'verdict-blue';   }
+  const data = CITIES[S.city];
 
-  const banner = document.getElementById('verdict-banner');
-  banner.className = 'verdict-banner ' + statusClass;
-  document.getElementById('verdict-income').textContent = fmt(S.income.total) + ' / mo';
-  document.getElementById('verdict-status').textContent = status;
-  document.getElementById('verdict-delta').textContent  =
-    (surplus >= 0 ? '+' : '') + fmt(surplus) + ' vs survival line';
+  const cost =
+    data.housing +
+    data.food +
+    data.transportation +
+    data.medical +
+    data.internet +
+    data.civic +
+    data.other;
 
-  // Income breakdown
-  document.getElementById('res-streaming').textContent = fmt(S.income.streaming);
-  document.getElementById('res-social').textContent    = fmt(S.income.social);
-  document.getElementById('res-touring').textContent   = fmt(S.income.touring);
-  document.getElementById('res-merch').textContent     = fmt(S.income.merch);
-  document.getElementById('res-total').textContent     = fmt(S.income.total);
-  document.getElementById('res-cost').textContent      = fmt(cost);
-  document.getElementById('res-net').textContent       = fmt(net);
+  const total = S.income.total;
+  const net = total - cost;
 
-  // Income mix pie chart
-  buildIncomeMixChart();
+  // =========================
+  // VERDICT
+  // =========================
+  let status = "";
+  let statusClass = "";
 
-  // Growth curve chart
-  buildGrowthChart();
+  if (total < cost * 0.7) {
+    status = "🔴 Below Survival";
+    statusClass = "verdict-red";
+  } else if (total < cost) {
+    status = "🟡 Below Living Wage";
+    statusClass = "verdict-yellow";
+  } else if (total < data.postTaxMin * 1.2) {
+    status = "🟢 Sustainable";
+    statusClass = "verdict-green";
+  } else {
+    status = "🚀 Scalable";
+    statusClass = "verdict-blue";
+  }
 
-  // What it would take
-  buildWhatItTakes(cost);
+  const banner = document.getElementById("verdict-banner");
+  banner.className = "verdict-banner " + statusClass;
 
-  // Persona
+  document.getElementById("verdict-income").textContent = fmt(total) + " / mo";
+  document.getElementById("verdict-status").textContent = status;
+  document.getElementById("verdict-delta").textContent =
+    (net >= 0 ? "+" : "") + fmt(net);
+
+  // =========================
+  // NUMBERS
+  // =========================
+  setText("res-streaming", fmt(S.income.streaming));
+  setText("res-touring", fmt(S.income.touring));
+  setText("res-merch", fmt(S.income.merch));
+  setText("res-total", fmt(total));
+  setText("res-cost", fmt(cost));
+  setText("res-net", fmt(net));
+
+  // =========================
+  // STRATEGY SUMMARY (LEFT COLUMN)
+  // =========================
+  setText("res-strategy-streaming", S.streamingActivityLabel || "—");
+  setText("res-strategy-touring", S.showsPerMonth + " shows/mo");
+  setText("res-strategy-merch", S.attachRate + "% attach");
+
+  // =========================
+  // CHART
+  // =========================
+  buildFinalChart();
+
+  // =========================
+  // PERSONA
+  // =========================
   buildPersona();
 
-  // Update status bar
+  // =========================
+  // EXPLANATION + RECS (we’ll wire next)
+  // =========================
+  buildFinalExplanation(total, cost);
+  buildRecommendations(cost);
+
+  // =========================
+  // STATUS BAR
+  // =========================
   updateStatusBar();
 }
-
 function buildIncomeMixChart() {
   const ctx = document.getElementById('chart-income-mix').getContext('2d');
   if (chartIncomeMix) chartIncomeMix.destroy();
@@ -705,20 +880,148 @@ function buildWhatItTakes(cost) {
 }
 
 function buildPersona() {
-  const maxStrat = Object.entries(S.strategy).sort((a,b) => b[1]-a[1])[0][0];
-  const personas = {
-    streaming: { name: 'The Cataloger',    desc: 'You build slow, passive income through catalog and playlists.' },
-    social:    { name: 'The Marketer',     desc: 'You grow audiences and monetize through brand and content.' },
-    touring:   { name: 'The Road Warrior', desc: 'You convert fans in person. High effort, high reward.' },
-    merch:     { name: 'The Brand Builder',desc: 'You turn fans into customers through direct-to-fan products.' }
-  };
+  const streaming = S.income.streaming;
+  const touring   = S.income.touring;
+  const merch     = S.income.merch;
 
-  const p = personas[maxStrat];
+  let persona = {};
+
+  if (streaming >= touring && streaming >= merch) {
+    persona = {
+      name: "The Cataloger",
+      desc: "You build slow, passive income through catalog and playlists."
+    };
+  } else if (touring >= streaming && touring >= merch) {
+    persona = {
+      name: "The Headliner",
+      desc: "You convert fans in person. High effort, high reward."
+    };
+  } else {
+    persona = {
+      name: "The Brand Builder",
+      desc: "You turn fans into customers through direct-to-fan products."
+    };
+  }
+
   document.getElementById('persona-card').innerHTML = `
     <div class="kicker">Your Artist Persona</div>
-    <h3>${p.name}</h3>
-    <p>${p.desc}</p>
+    <h3>${persona.name}</h3>
+    <p>${persona.desc}</p>
   `;
+}
+
+
+function buildFinalExplanation(total, cost) {
+  const el = document.getElementById("final-explanation");
+  if (!el) return;
+
+  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
+
+  const streaming = S.income.streaming;
+  const live = S.income.touring;
+  const merch = S.income.merch;
+
+  // =========================
+  // DETERMINE DOMINANT STREAM
+  // =========================
+  let dominant = "none";
+
+  if (streaming >= live && streaming >= merch) dominant = "streaming";
+  else if (live >= streaming && live >= merch) dominant = "live";
+  else dominant = "merch";
+
+  let text = "";
+
+  // =========================
+  // 1. VIABILITY
+  // =========================
+  if (total < cost) {
+    text += "Your current strategy does not generate enough income to sustain your cost of living. ";
+  } else {
+    text += "Your strategy is financially sustainable at your current scale. ";
+  }
+
+  // =========================
+  // 2. DOMINANT STRATEGY
+  // =========================
+  if (dominant === "streaming") {
+    text += "Your income is primarily driven by streaming, which creates passive but slower-growing revenue. ";
+  }
+
+  if (dominant === "live") {
+    text += "Your income is driven by live performance, which can generate strong revenue but requires constant effort. ";
+  }
+
+  if (dominant === "merch") {
+    text += "Your income relies heavily on fan spending, meaning your audience engagement is strong. ";
+  }
+
+  // =========================
+  // 3. STRUCTURAL GAPS
+  // =========================
+  if (!streamingEnabled && liveEnabled) {
+    text += "However, without an online presence, your ability to grow your audience is limited. ";
+  }
+
+  if (streamingEnabled && !liveEnabled) {
+    text += "However, you are not converting your audience into live revenue, which limits your earning potential. ";
+  }
+
+  if (!streamingEnabled && !liveEnabled) {
+    text += "You currently lack both audience growth and monetization channels, which makes income generation difficult. ";
+  }
+
+  // =========================
+  // 4. BALANCE / NEXT MOVE
+  // =========================
+  if (dominant === "streaming" && liveEnabled) {
+    text += "Increasing live performances could help convert your audience into more immediate income.";
+  }
+
+  if (dominant === "live" && streamingEnabled) {
+    text += "Investing in streaming and content could help you scale beyond local audiences.";
+  }
+
+  if (dominant === "merch") {
+    text += "Strengthening either streaming or live performance could help stabilize and grow your income.";
+  }
+
+  if (total >= cost && dominant !== "none") {
+    text += " Your next step is to scale what is already working.";
+  }
+
+  el.textContent = text;
+}
+
+
+function buildRecommendations(cost) {
+  const el = document.getElementById("recommendations-list");
+  if (!el) return;
+
+  let recs = [];
+
+  if (S.income.streaming < S.income.touring) {
+    recs.push("Invest in streaming to build a larger, scalable audience.");
+  }
+
+  if (S.income.touring < S.income.streaming) {
+    recs.push("Increase live performances to convert your audience into revenue.");
+  }
+
+  if (S.attachRate < 15) {
+    recs.push("Improve merch strategy — stronger branding can increase fan spending.");
+  }
+
+  if (S.income.total < cost) {
+    recs.push("Your current model is not sustainable — focus on scaling one core revenue stream.");
+  }
+
+  if (recs.length === 0) {
+    recs.push("Your strategy is well balanced. Focus on scaling what is already working.");
+  }
+
+  el.innerHTML = recs.map(r => `<div class="wit-card">${r}</div>`).join("");
 }
 
 // =============================================================
@@ -736,7 +1039,11 @@ function updateStatusBar() {
   bar.style.display = 'block';
   document.getElementById('status-city').textContent   = S.city;
   document.getElementById('status-goal').textContent   = fmt(data.postTaxMin) + '/mo';
+  if (currentScreen >= 3 && S.income.total > 0) {
+  document.getElementById('status-income').textContent = fmt(S.income.total);
+} else {
   document.getElementById('status-income').textContent = '—';
+}
 
  const badge = document.getElementById('status-badge');
 
@@ -770,10 +1077,10 @@ function restartSim() {
     fanStrength: 50,
 
     // NEW MODEL (real controls)
-    showsPerMonth: 4,
-    artistCut: 15,
-    attachRate: 10,
-    streamingActivity: 5,
+    showsPerMonth: 0,
+    artistCut: 0,
+    attachRate: 0,
+    streamingActivity: 0,
 
     // COMPAT LAYER (do not remove yet)
     strategy: {
@@ -810,7 +1117,10 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
 
 // =============================================================
 //  INIT — runs after data.js has loaded everything
@@ -838,8 +1148,45 @@ function initStrategySteps() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await initAllData();       // from data.js — loads CITIES, CPM, MERCH
-  populateCityDropdown();    // fill the city select with real cities
-  onAudienceChange();        // set default audience panel state
-  onStrategyChange();        // set default strategy chart
+  if (typeof initAllData === "function") {
+  await initAllData();
+} else {
+  console.error("initAllData not found");
+}
+
+  populateCityDropdown();
+
+  // Force defaults to sync with UI
+  onAudienceChange();
+  onStrategyChange();
+  onTouringChange();
+  onMerchChange();
+  updateIncomeChart();
+
+
+// ===== FORCE EVENT BINDING =====
+
+// Streaming slider
+const streamingSlider = document.getElementById('strat-streaming');
+if (streamingSlider) {
+  streamingSlider.addEventListener('input', onStrategyChange);
+}
+
+// Touring sliders
+const showsSlider = document.getElementById('slider-shows');
+const cutSlider = document.getElementById('slider-cut');
+
+if (showsSlider) {
+  showsSlider.addEventListener('input', onTouringChange);
+}
+if (cutSlider) {
+  cutSlider.addEventListener('input', onTouringChange);
+}
+
+// Merch slider
+const merchSlider = document.getElementById('slider-attach');
+if (merchSlider) {
+  merchSlider.addEventListener('input', onMerchChange);
+}
+
 });
