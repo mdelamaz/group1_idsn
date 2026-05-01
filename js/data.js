@@ -71,6 +71,16 @@ function buildCPM(rows) {
     const mid = parseFloat(row.cpm_mid);
     CPM[row.Tier][row.platform] = mid > 0 ? mid : null;
   });
+  // Mid-tier TikTok is often missing from source data; use average of Micro + Macro TikTok when absent
+  if (CPM.Mid) {
+    const microTk = CPM.Micro && CPM.Micro.tiktok;
+    const macroTk = CPM.Macro && CPM.Macro.tiktok;
+    if ((CPM.Mid.tiktok == null || CPM.Mid.tiktok === 0) && microTk && macroTk) {
+      CPM.Mid.tiktok = (microTk + macroTk) / 2;
+    } else if ((CPM.Mid.tiktok == null || CPM.Mid.tiktok === 0) && (microTk || macroTk)) {
+      CPM.Mid.tiktok = microTk || macroTk;
+    }
+  }
 }
 
 // --- Build MERCH lookup (keyed by item_key) ---
@@ -168,7 +178,8 @@ function populateSocialTable() {
 //  3. INIT — run everything on page load
 // =============================================================
 
-// Only auto-init on data.html, not on simulator.html
-if (document.getElementById('tbody-streaming')) {
-  document.addEventListener('DOMContentLoaded', initAllData);
-}
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('tbody-streaming')) {
+    initAllData();
+  }
+});
