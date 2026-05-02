@@ -718,7 +718,8 @@ td small {
 }
 
 .hero-grid.compact {
-  min-height: auto;
+  padding-top: 64px;  /* increase this */
+  padding-bottom: 48px;
 }
 
 .hero-grid {
