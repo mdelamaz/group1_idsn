@@ -6,6 +6,219 @@
   <title>STREAMONOMICS | Simulator</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/simulator.css" />
+
+<style>
+    /* ============================================================
+       STATUS BAR — floating card
+       ============================================================ */
+    #sim-statusbar {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: none;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 999px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.06);
+      align-items: center;
+      gap: 0;
+      padding: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      min-width: 300px;
+      max-width: 480px;
+    }
+
+    .sb-city {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 13px 20px 13px 22px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.01em;
+      flex-shrink: 0;
+    }
+
+    .sb-city .sb-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+
+    .sb-sep {
+      width: 1px;
+      height: 28px;
+      background: rgba(0,0,0,0.09);
+      flex-shrink: 0;
+    }
+
+    .sb-income {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 10px 20px;
+      flex-shrink: 0;
+    }
+
+    .sb-income-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #aaa;
+      font-weight: 700;
+    }
+
+    #status-income {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.02em;
+    }
+
+    .sb-meter {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 10px 22px 10px 16px;
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .sb-meter-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #aaa;
+      font-weight: 700;
+    }
+
+    .sb-meter-track {
+      width: 100%;
+      height: 7px;
+      background: #ebebeb;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    #status-meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: #10b981;
+      transition: width 0.55s cubic-bezier(0.34,1.56,0.64,1), background 0.4s ease;
+    }
+
+    #sim-statusbar {
+      top: 96px !important;
+      bottom: auto !important;
+    }
+
+    .sim-main {
+      padding-top: 72px;
+    }
+
+    /* ============================================================
+       STEP 1 — MAP (exact styles from original simulation)
+       ============================================================ */
+    .map-container {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.08);
+      overflow: hidden;
+      border-radius: 4px;
+      cursor: grab;
+      margin-bottom: 18px;
+    }
+    .map-container.dragging { cursor: grabbing; }
+    .state-path { fill: #f3f4f6; stroke: #d1d5db; stroke-width: 0.8; transition: fill 0.2s, stroke 0.2s; }
+    .state-path.has-data { fill: #eceff3; }
+    .state-path.selected { fill: #efe5cf; stroke: #b98a2d; stroke-width: 1.5; }
+    .city-dot-g { cursor: pointer; }
+    .city-dot-g circle { fill: #b98a2d; stroke: rgba(185,138,45,0.28); stroke-width: 5; transition: all 0.2s; }
+    .city-dot-g:hover circle { r: 7; stroke-width: 10; fill: #c79c3f; }
+    .city-dot-g.sel circle  { fill: #d2a64a; stroke: rgba(185,138,45,0.35); stroke-width: 10; }
+    .city-dot-g text { fill: #7a7a7a; font-size: 8px; pointer-events: none; }
+    .city-dot-g:hover text, .city-dot-g.sel text { fill: #2a2a2a; }
+    .map-tooltip {
+      position: fixed; background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.12);
+      padding: 12px 16px; pointer-events: none;
+      z-index: 9000; opacity: 0; transition: opacity 0.15s; min-width: 190px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .map-tooltip.vis { opacity: 1; }
+    .tt-city { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #2a2a2a; }
+    .tt-row { display: flex; justify-content: space-between; gap: 16px; padding: 3px 0; border-bottom: 1px solid rgba(0,0,0,0.07); font-size: 10px; }
+    .tt-row:last-child { border-bottom: none; }
+    .tt-key { color: #737373; }
+    .tt-val { color: #b98a2d; font-weight: 700; }
+    .map-controls { position: absolute; bottom: 10px; right: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 100; }
+    .map-ctrl-btn { width: 28px; height: 28px; background: #ffffff; border: 1px solid rgba(0,0,0,0.14); color: #666; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-weight: 700; line-height: 1; user-select: none; }
+    .map-ctrl-btn:hover { background: #faf7ef; color: #b98a2d; border-color: #b98a2d; }
+    .map-zoom-label { position: absolute; bottom: 10px; left: 10px; font-size: 9px; color: #666; letter-spacing: 1px; }
+    .map-hint { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 9px; color: #666; letter-spacing: 1px; white-space: nowrap; pointer-events: none; }
+
+    /* ============================================================
+       STEP 1 — DROPDOWN (new style)
+       ============================================================ */
+    .city-select-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .city-select-label {
+      display: block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 7px;
+    }
+
+    #city-select {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #f6f6f8;
+      border: 1.5px solid #e5e5e7;
+      border-radius: 12px;
+      padding: 13px 44px 13px 16px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: #111;
+      cursor: pointer;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    #city-select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.14);
+    }
+
+    .city-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 16px;
+      bottom: 15px;
+      color: #aaa;
+      pointer-events: none;
+      font-size: 0.95rem;
+    }
+
+    /* ============================================================
+       NAV BUTTONS — no arrows (override)
+       ============================================================ */
+    .btn-no-arrow::after,
+    .btn-no-arrow::before {
+      content: none !important;
+    }
+  </style>
+
 </head>
 <body>
 
@@ -23,15 +236,24 @@
     </div>
   </header>
 
-  <!-- PERSISTENT STATUS BAR (hidden until screen 1 is complete) -->
-  <div class="sim-statusbar" id="sim-statusbar" style="display:none;">
-    <div class="sim-statusbar-inner">
-      <span>🏙️ City: <strong id="status-city">—</strong></span>
-      <span>🎯 Goal: <strong id="status-goal">—</strong></span>
-      <span>💰 Income: <strong id="status-income">—</strong></span>
-      <span id="status-badge" class="status-badge">—</span>
+  <div id="sim-statusbar">
+  <div class="sb-city">
+    <span class="sb-icon">🏙️</span>
+    <span id="status-city">—</span>
+  </div>
+  <div class="sb-sep"></div>
+  <div class="sb-income">
+    <span class="sb-income-label">Income</span>
+    <span id="status-income">—</span>
+  </div>
+  <div class="sb-sep"></div>
+  <div class="sb-meter">
+    <span class="sb-meter-label">Viability</span>
+    <div class="sb-meter-track">
+      <div id="status-meter-fill"></div>
     </div>
   </div>
+</div>
 
   <!-- SIMULATOR SCREENS -->
   <main class="sim-main">
@@ -60,19 +282,82 @@
           <h2 class="h2">Set Your City</h2>
           <p class="note">Your city sets your cost baseline — the minimum you need to survive.</p>
 
-          <!-- City dropdown (placeholder for SVG map) -->
-          <div class="form-group" style="margin-top:24px;">
-            <label for="city-select">Select your city</label>
-            <select id="city-select" class="sim-select" onchange="onCityChange()">
+         <!-- MAP — exact replica of original simulation -->
+          <div class="map-container" style="height:380px;" id="mapContainer">
+            <div class="map-hint" id="mapHint">scroll to zoom · drag to pan · click to select</div>
+            <div class="map-zoom-label" id="mapZoomLabel">100%</div>
+            <div class="map-controls">
+              <button class="map-ctrl-btn" onclick="mapZoom(0.25)" title="Zoom in">+</button>
+              <button class="map-ctrl-btn" onclick="mapZoom(-0.25)" title="Zoom out">−</button>
+              <button class="map-ctrl-btn" onclick="mapReset()" title="Reset" style="font-size:11px;">⌂</button>
+            </div>
+            <svg id="usMap" viewBox="0 0 960 580" style="width:100%;height:100%;display:block;">
+              <g id="mapInner" style="transform-origin:480px 290px;">
+                <g id="statesG">
+                  <path class="state-path has-data" id="sp-AZ" d="M178 310 L178 415 L295 415 L305 345 L255 310 Z"/>
+                  <path class="state-path has-data" id="sp-CA" d="M88 210 L80 345 L138 385 L178 415 L178 310 L155 260 L136 210 Z"/>
+                  <path class="state-path has-data" id="sp-CO" d="M293 268 L293 342 L413 342 L413 268 Z"/>
+                  <path class="state-path has-data" id="sp-DC" d="M758 248 L754 262 L770 262 L774 248 Z"/>
+                  <path class="state-path has-data" id="sp-FL" d="M583 432 L575 432 L568 480 L588 512 L652 492 L672 442 L632 422 L608 402 L600 432 Z"/>
+                  <path class="state-path has-data" id="sp-GA" d="M608 362 L606 402 L632 422 L672 442 L682 402 L667 362 Z"/>
+                  <path class="state-path has-data" id="sp-IL" d="M558 238 L553 322 L582 332 L592 282 L582 238 Z"/>
+                  <path class="state-path has-data" id="sp-LA" d="M508 392 L506 432 L552 442 L572 422 L572 392 Z"/>
+                  <path class="state-path has-data" id="sp-MA" d="M816 183 L813 207 L858 207 L860 183 Z"/>
+                  <path class="state-path has-data" id="sp-MI" d="M598 173 L596 238 L632 238 L647 208 L662 173 L630 163 Z"/>
+                  <path class="state-path has-data" id="sp-MN" d="M458 148 L456 238 L492 238 L497 198 L512 148 Z"/>
+                  <path class="state-path has-data" id="sp-NV" d="M136 218 L136 312 L178 312 L178 258 L156 258 Z"/>
+                  <path class="state-path has-data" id="sp-NY" d="M728 173 L724 230 L798 230 L802 173 Z"/>
+                  <path class="state-path has-data" id="sp-NC" d="M678 308 L676 352 L762 352 L764 308 Z"/>
+                  <path class="state-path has-data" id="sp-OH" d="M623 238 L620 312 L670 312 L672 238 Z"/>
+                  <path class="state-path has-data" id="sp-OR" d="M88 188 L88 252 L178 252 L178 192 L138 168 Z"/>
+                  <path class="state-path has-data" id="sp-PA" d="M698 216 L696 260 L764 260 L767 216 Z"/>
+                  <path class="state-path has-data" id="sp-SC" d="M663 342 L660 382 L712 382 L714 342 Z"/>
+                  <path class="state-path has-data" id="sp-TN" d="M568 332 L566 368 L682 368 L684 342 L622 332 Z"/>
+                  <path class="state-path has-data" id="sp-TX" d="M348 342 L343 462 L482 482 L512 432 L512 392 L392 392 L392 342 Z"/>
+                  <path class="state-path has-data" id="sp-UT" d="M238 258 L238 342 L297 342 L297 272 L278 258 Z"/>
+                  <path class="state-path has-data" id="sp-VA" d="M698 258 L696 302 L764 302 L767 258 Z"/>
+                  <path class="state-path has-data" id="sp-WA" d="M88 138 L88 192 L178 192 L178 148 L148 138 Z"/>
+                  <!-- non-data states for geography -->
+                  <path class="state-path" d="M248 138 L248 222 L382 222 L382 138 Z"/>
+                  <path class="state-path" d="M382 138 L382 202 L462 202 L462 138 Z"/>
+                  <path class="state-path" d="M382 202 L382 252 L462 252 L462 202 Z"/>
+                  <path class="state-path" d="M462 148 L462 202 L512 202 L512 148 Z"/>
+                  <path class="state-path" d="M293 208 L293 268 L382 268 L382 208 Z"/>
+                  <path class="state-path" d="M412 238 L412 292 L492 292 L492 238 Z"/>
+                  <path class="state-path" d="M412 292 L412 342 L512 342 L512 292 Z"/>
+                  <path class="state-path" d="M288 312 L288 412 L392 412 L392 312 Z"/>
+                  <path class="state-path" d="M512 292 L510 362 L562 362 L560 292 Z"/>
+                  <path class="state-path" d="M588 238 L588 312 L622 312 L627 238 Z"/>
+                  <path class="state-path" d="M678 258 L676 302 L712 302 L714 258 Z"/>
+                  <path class="state-path" d="M618 298 L616 342 L702 342 L705 312 L682 298 Z"/>
+                  <path class="state-path" d="M556 342 L553 422 L582 422 L585 362 L582 332 Z"/>
+                  <path class="state-path" d="M538 332 L536 392 L582 392 L585 362 L582 332 Z"/>
+                  <path class="state-path" d="M392 342 L392 392 L512 392 L512 342 Z"/>
+                  <path class="state-path" d="M527 173 L525 238 L562 238 L567 173 Z"/>
+                  <path class="state-path" d="M578 362 L576 432 L600 432 L608 402 L608 362 Z"/>
+                  <path class="state-path" d="M794 226 L790 248 L812 248 L816 226 Z"/>
+                  <path class="state-path" d="M746 248 L743 267 L792 267 L794 248 Z"/>
+                  <path class="state-path" d="M808 183 L806 200 L822 200 L824 183 Z"/>
+                  <path class="state-path" d="M830 158 L828 197 L850 197 L852 158 Z"/>
+                  <path class="state-path" d="M846 138 L843 187 L872 187 L877 138 Z"/>
+                  <path class="state-path" d="M808 197 L806 217 L832 217 L834 197 Z"/>
+                  <path class="state-path" d="M698 308 L696 352 L680 352 Z"/>
+                </g>
+                <g id="cityDotsG"></g>
+              </g>
+            </svg>
+          </div>
+          <div id="mapTooltip" class="map-tooltip"></div>
+
+          <!-- DROPDOWN -->
+          <div class="city-select-wrap">
+            <label class="city-select-label" for="city-select">Or search by city name</label>
+            <select id="city-select" onchange="onCityChange()">
               <option value="">— Choose a city —</option>
             </select>
           </div>
-
-          <!-- Map placeholder -->
-          <div class="map-placeholder" id="map-placeholder">
-            <span>🗺️ Interactive map coming soon</span>
-          </div>
         </div>
+
 
         <!-- RIGHT: Cost Breakdown Panel -->
         <div class="sim-col-side" id="city-panel" style="display:none;">
