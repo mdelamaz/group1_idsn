@@ -5,6 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>STREAMONOMICS | Resources</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .design-image {
+      width: 100%;
+      height: 200px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      background-size: cover;
+      background-position: center;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    .persona-card {
+      background: rgba(255,255,255,0.64);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .persona-image {
+      width: 100%;
+      height: 180px;
+      background-size: cover;
+      background-position: center -30px;
+      background-color: var(--bg-soft);
+    }
+
+    .persona-body {
+      padding: 18px;
+    }
+
+    .persona-body h3 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .persona-body p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .quote {
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--muted);
+      border-left: 3px solid var(--gold);
+      padding-left: 14px;
+      margin: 0 0 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .persona-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -13,111 +78,173 @@
       <nav class="nav" aria-label="Primary">
         <a href="index.html">Home</a>
         <a class="active" href="resources.html">Resources</a>
-        
         <a href="data.html">Data</a>
         <a href="simulator.html">Simulator</a>
       </nav>
-      <a class="btn btn-primary" href="data.html">Go to Data</a>
+      <a class="btn btn-primary" href="simulator.html">Try the Simulator</a>
     </div>
   </header>
 
-  <main class="section">
-  <div class="container">
+  <main>
 
-    <div class="section-head">
-      <div>
-        <div class="kicker">Resources</div>
-        <h1 class="h2">Market Research</h1>
+    <!-- TITLE SPLIT -->
+    <section class="hero">
+      <div class="hero-grid compact">
+        <div>
+          <div class="kicker">Behind the project</div>
+          <h1 class="h2">Research &amp; References</h1>
+          <p class="lead">The market data, design decisions, and user feedback that shaped Streamonomics.</p>
+        </div>
+        <div class="hero-panel"></div>
       </div>
-     
-    </div>
+    </section>
 
-    <div class="stack">
-      <article class="resource-item">
-        <div class="resource-meta">Industry Benchmarks</div>
-        <h3>Spotify creator economy data</h3>
-        <p>Useful for showing how streaming revenue compares across audience sizes and creator tiers.</p>
-      </article>
+    <section class="section">
+      <div class="container">
+        <div class="stack">
 
-      <article class="resource-item">
-        <div class="resource-meta">Comparative Research</div>
-        <h3>The Companies that Zihao found</h3>
-        <p>Something about it.</p>
-      </article>
-    </div>
+          <!-- ============================================================
+               MARKET RESEARCH
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">Market Research</div>
+            <h2 class="h2">Industry Benchmarks</h2>
+            <p class="note" style="margin-bottom:24px;">The data sources powering the simulator's income calculations and cost-of-living baseline.</p>
 
-     <div class="section-head" style="margin-top: 56px;">
-      <div>
-        <h1 class="h2">Design Research</h1>
+            <div class="stack">
+              <article class="resource-item">
+                <div class="resource-meta">Streaming Data</div>
+                <h3>Spotify Loud &amp; Clear Report</h3>
+                <p>Spotify's annual transparency report breaks down how streaming royalties are distributed across artist tiers. The data confirms that the vast majority of streaming income goes to a small percentage of artists — reinforcing why audience size and CPM tier matter so much in the simulator.</p>
+              </article>
+
+              <article class="resource-item">
+                <div class="resource-meta">Cost of Living</div>
+                <h3>MIT Living Wage Calculator</h3>
+                <p>The cost-of-living baseline in the simulator is derived from MIT's Living Wage Calculator, which models the minimum income needed to cover basic expenses by city. Housing, food, transport, medical, and civic costs are all sourced from this dataset.</p>
+              </article>
+
+              <article class="resource-item">
+                <div class="resource-meta">Industry Revenue</div>
+                <h3>RIAA Music Industry Revenue Data</h3>
+                <p>The Recording Industry Association of America tracks how revenue is split across streaming, live performance, and physical and digital sales. The three-stream model in Streamonomics mirrors these industry-standard categories.</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ============================================================
+               DESIGN RESEARCH
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">Design Research</div>
+            <h2 class="h2">Design Decisions</h2>
+            <p class="note" style="margin-bottom:24px;">The visual and UX choices that define the Streamonomics experience.</p>
+
+            <div class="grid-3">
+              <article class="interview-item">
+                <div class="design-image" style="background-image: url('assets/streamonomics-logo-clean.png'); background-size: contain; background-repeat: no-repeat; background-color: var(--bg-soft);"></div>
+                <div class="interview-meta">Identity</div>
+                <h3>Logo &amp; Visual Identity</h3>
+                <p>The Streamonomics mark was designed around the concept of playability. The vertical bars reference both an audio equalizer and a bar chart — sitting at the intersection of music and data. The form is minimal and scalable, readable at any size without losing its connection to sound.</p>
+              </article>
+
+              <article class="interview-item">
+                <div class="design-image" style="background-image: url('assets/design-ui.png');"></div>
+                <div class="interview-meta">Interface</div>
+                <h3>UI Philosophy</h3>
+                <p>Competitor research revealed that existing tools for artists — royalty calculators, income estimators, tour planners — are almost universally overwhelming. Streamonomics was deliberately designed to do the opposite: one decision at a time, progressive disclosure, and a result that speaks for itself.</p>
+              </article>
+
+              <article class="interview-item">
+                <div class="design-image" style="background-image: url('assets/design-colors.png');"></div>
+                <div class="interview-meta">Color System</div>
+                <h3>Color &amp; Palette</h3>
+                <p>White and gold were chosen intentionally. White signals clarity and transparency — this tool shows you the real numbers, nothing hidden. Gold references monetary incentive and creative ambition: the reason any artist is asking the question in the first place.</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ============================================================
+               ARTIST PERSONAS
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">Simulation Outcomes</div>
+            <h2 class="h2">Artist Personas</h2>
+            <p class="note" style="margin-bottom:24px;">Based on the results of your simulation, Streamonomics assigns you one of three artist personas. Each reflects a different approach to building a sustainable music career — shaped by how you weight streaming, live performance, and merchandise.</p>
+
+            <div class="persona-grid">
+
+              <div class="persona-card">
+                <div class="persona-image" style="background-image: url('assets/persona-cataloger.png');"></div>
+                <div class="persona-body">
+                  <div class="resource-meta">Persona 01</div>
+                  <h3>The Cataloger</h3>
+                  <p>Builds slow, passive income through streaming catalogs and playlists. Patient, consistent, and playing the long game — your music works for you while you sleep.</p>
+                </div>
+              </div>
+
+              <div class="persona-card">
+                <div class="persona-image" style="background-image: url('assets/persona-showman.png');"></div>
+                <div class="persona-body">
+                  <div class="resource-meta">Persona 02</div>
+                  <h3>The Showman</h3>
+                  <p>Lives for the stage. Converts fans in person through high-energy live performance. The crowd is your currency — high effort, high reward.</p>
+                </div>
+              </div>
+
+              <div class="persona-card">
+                <div class="persona-image" style="background-image: url('assets/persona-brand.png');"></div>
+                <div class="persona-body">
+                  <div class="resource-meta">Persona 03</div>
+                  <h3>The Brand Builder</h3>
+                  <p>Turns fan loyalty into direct revenue through merch, content, and direct-to-fan products. Your audience doesn't just listen — they invest in you.</p>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ============================================================
+               USER RESEARCH
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">User Research</div>
+            <h2 class="h2">User Interviews</h2>
+            <p class="note" style="margin-bottom:24px;">Feedback from three independent users who tested the simulator prototype. Their responses shaped the current experience.</p>
+
+            <div class="grid-3">
+
+              <article class="interview-item">
+                <div class="interview-meta">Anonymous User 01</div>
+                <h3>The tool has strong potential — but inputs need grounding</h3>
+                <p class="quote">"The experience feels more like filling out a model than exploring a system."</p>
+                <p><strong>Takeaway:</strong> Inputs like audience size and fan strength felt abstract without real-world reference points. Wants to see a default outcome first and adjust from there — exploration over configuration.</p>
+              </article>
+
+              <article class="interview-item">
+                <div class="interview-meta">Anonymous User 02</div>
+                <h3>Engaging once results appear — onboarding needs acceleration</h3>
+                <p class="quote">"It became more engaging when I started to see how the income changed, especially in the touring section."</p>
+                <p><strong>Takeaway:</strong> The step-by-step flow felt slow before any results appeared. Responded well to direct cause-and-effect feedback. Wants the system to suggest what to try next, not just report what happened.</p>
+              </article>
+
+              <article class="interview-item">
+                <div class="interview-meta">Anonymous User 03</div>
+                <h3>Strong concept — persona and identity could build throughout</h3>
+                <p class="quote">"The persona is only introduced at the end, which feels like a missed opportunity."</p>
+                <p><strong>Takeaway:</strong> Wants stronger emotional feedback throughout — not just at the results screen. Sees potential in pushing toward a life-simulation feel where identity builds progressively, not all at once.</p>
+              </article>
+
+            </div>
+          </section>
+
+        </div>
       </div>
-     
-    </div>
+    </section>
 
-    <div class="grid-2">
-      <article class="interview-item">
-             <div class="design-image"></div>
+  </main>
 
-
-
-        <div class="interview-meta">Design 01</div>
-        <h3>Title or whatever we want to call it</h3>
-
-        
-
-        <p><strong>Comments:</strong> “Dummy quote placeholder.”</p>
-        <p><strong>Takeaway:</strong> Too much going on; dark color scheme, etc.</p>
-      </article>
-
-      <article class="interview-item">
-            <div class="design-image"></div>
-        <div class="interview-meta">Design 02</div>
-        <h3>Title or whatever we want to call it</h3>
-        <p><strong>Comments:</strong> Good but why the random images</p>
-        <p><strong>Takeaway:</strong> Much more cohesive, etc. etc.</p>
-      </article>
-    </div>
-
-    <div class="section-head" style="margin-top: 56px;">
-      <div>
-        <h1 class="h2">User Research</h1>
-      </div>
-      
-    </div>
-
-    <div class="grid-2">
-      <article class="interview-item">
-        <div class="interview-meta">Interviewee 01</div>
-        <h3>Patrick — IYA Professor / Moonlights in a smooth jazz band</h3>
-        <p><strong>Comments:</strong> “Dummy quote placeholder.”</p>
-        <p><strong>Takeaway:</strong> Wants a quick way to compare income streams and understand what actually drives sustainability.</p>
-      </article>
-
-      <article class="interview-item">
-        <div class="interview-meta">Interviewee 02</div>
-        <h3>Some dude / Feels confident he could make it</h3>
-        <p><strong>Comments:</strong> “Dummy quote placeholder.”</p>
-        <p><strong>Takeaway:</strong> Cares about clarity, evidence, and whether the simulation leads to an actionable conclusion.</p>
-      </article>
-
-       <article class="interview-item">
-        <div class="interview-meta">Interviewee 03</div>
-        <h3>Some lady / likes to sing in the shower</h3>
-        <p><strong>Comments:</strong> “Dummy quote placeholder.”</p>
-        <p><strong>Takeaway:</strong> Cares about clarity, evidence, and whether the simulation leads to an actionable conclusion.</p>
-      </article>
-
-       <article class="interview-item">
-        <div class="interview-meta">Interviewee 04</div>
-        <h3>Some guy / used to be in a band</h3>
-        <p><strong>Comments:</strong> “Dummy quote placeholder.”</p>
-        <p><strong>Takeaway:</strong> Cares about clarity, evidence, and whether the simulation leads to an actionable conclusion.</p>
-      </article>
-    </div>
-    
-
-  </div>
-</main>
-<footer class="footer">
+  <footer class="footer">
     <div class="container mini">
       ......
     </div>
