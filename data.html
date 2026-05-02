@@ -12,6 +12,12 @@
       gap: 16px;
       margin-top: 24px;
     }
+    .viz-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
     .viz {
       background: rgba(255,255,255,0.6);
       border: 1px solid rgba(0,0,0,0.06);
@@ -35,15 +41,15 @@
       position: relative;
       height: 180px;
     }
+    .hero-grid.compact > div {
+      padding-top: 48px;
+      padding-bottom: 48px;
+      padding-left: 60px;
+    }
     @media (max-width: 900px) {
       .viz-grid { grid-template-columns: 1fr; }
+      .viz-grid-2 { grid-template-columns: 1fr; }
     }
-
-    .hero-grid.compact > div {
-  padding-top: 48px;
-  padding-bottom: 48px;
-  padding-left: 60px;
-}
   </style>
 </head>
 <body>
@@ -62,7 +68,7 @@
 
   <main>
 
-    <!-- TITLE SECTION — white/beige split like homepage -->
+    <!-- TITLE SECTION -->
     <section class="hero">
       <div class="hero-grid compact">
         <div>
@@ -73,148 +79,146 @@
         <div class="hero-panel"></div>
       </div>
     </section>
-  
+
     <section class="section">
       <div class="container">
         <div class="stack">
 
-        <!-- ============================================================
-             DATASET 01: STREAMING CPM
-             ============================================================ -->
-        <section class="card card-pad">
-          <div class="kicker">Dataset 01</div>
-          <h2 class="h2">Streaming CPM rates</h2>
-          <p class="note">CPM (cost per thousand streams) by artist tier and platform. These rates determine how much an artist earns per 1,000 plays in the simulator.</p>
+          <!-- ============================================================
+               DATASET 01: STREAMING CPM
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">Dataset 01</div>
+            <h2 class="h2">Streaming CPM rates</h2>
+            <p class="note">CPM (cost per thousand streams) by artist tier and platform. These rates determine how much an artist earns per 1,000 plays in the simulator.</p>
 
-          <div class="table-wrap" style="margin-top:16px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Tier</th>
-                  <th>Spotify CPM</th>
-                  <th>YouTube CPM</th>
-                  <th>Instagram CPM</th>
-                  <th>TikTok CPM</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-streaming">
-                <tr><td colspan="5" style="color:var(--muted);font-style:italic;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
+            <div class="table-wrap" style="margin-top:16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tier</th>
+                    <th>Spotify CPM</th>
+                    <th>YouTube CPM</th>
+                    <th>Instagram CPM</th>
+                    <th>TikTok CPM</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-streaming">
+                  <tr><td colspan="5" style="color:var(--muted);font-style:italic;">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div class="viz-grid">
-            <div class="viz">
-              <strong>Spotify CPM by Tier</strong>
-              <span>How much Spotify pays per 1,000 streams as you grow</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-spotify-cpm"></canvas></div>
+            <div class="viz-grid">
+              <div class="viz">
+                <strong>Spotify CPM by Tier</strong>
+                <span>How much Spotify pays per 1,000 streams as you grow</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-spotify-cpm"></canvas></div>
+              </div>
+              <div class="viz">
+                <strong>Platform CPM at Mid Tier</strong>
+                <span>CPM rates side by side for a mid-size artist</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-platform-cpm"></canvas></div>
+              </div>
+              <div class="viz">
+                <strong>Est. Monthly Income by Tier</strong>
+                <span>Spotify income at mid-range stream count per tier</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-streaming-income"></canvas></div>
+              </div>
             </div>
-            <div class="viz">
-              <strong>Platform CPM at Mid Tier</strong>
-              <span>CPM rates side by side for a mid-size artist</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-platform-cpm"></canvas></div>
-            </div>
-            <div class="viz">
-              <strong>Est. Monthly Income by Tier</strong>
-              <span>Spotify income at mid-range stream count per tier</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-streaming-income"></canvas></div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- ============================================================
-             DATASET 02: MERCH MARGINS
-             ============================================================ -->
-        <section class="card card-pad">
-          <div class="kicker">Dataset 02</div>
-          <h2 class="h2">Merch margins</h2>
-          <p class="note">Retail price, production cost, and profit per unit for each merch item. Margin is calculated as profit divided by retail price.</p>
+          <!-- ============================================================
+               DATASET 02: MERCH MARGINS
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">Dataset 02</div>
+            <h2 class="h2">Merch margins</h2>
+            <p class="note">Retail price, production cost, and profit per unit for each merch item. Margin is calculated as profit divided by retail price.</p>
 
-          <div class="table-wrap" style="margin-top:16px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Retail price</th>
-                  <th>Production cost</th>
-                  <th>Profit per unit</th>
-                  <th>Margin %</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-merch">
-                <tr><td colspan="5" style="color:var(--muted);font-style:italic;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
+            <div class="table-wrap" style="margin-top:16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Retail price</th>
+                    <th>Production cost</th>
+                    <th>Profit per unit</th>
+                    <th>Margin %</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-merch">
+                  <tr><td colspan="5" style="color:var(--muted);font-style:italic;">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div class="viz-grid">
-            <div class="viz">
-              <strong>Profit vs Cost per Unit</strong>
-              <span>How much you keep vs. what it costs to make</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-merch-split"></canvas></div>
+            <div class="viz-grid">
+              <div class="viz">
+                <strong>Profit vs Cost per Unit</strong>
+                <span>How much you keep vs. what it costs to make</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-merch-split"></canvas></div>
+              </div>
+              <div class="viz">
+                <strong>Margin % by Item</strong>
+                <span>Which item has the best margin</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-merch-margin"></canvas></div>
+              </div>
+              <div class="viz">
+                <strong>Retail Price Breakdown</strong>
+                <span>Cost vs. profit as a share of retail price</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-merch-retail"></canvas></div>
+              </div>
             </div>
-            <div class="viz">
-              <strong>Margin % by Item</strong>
-              <span>Which item has the best margin</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-merch-margin"></canvas></div>
-            </div>
-            <div class="viz">
-              <strong>Retail Price Breakdown</strong>
-              <span>Cost vs. profit as a share of retail price</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-merch-retail"></canvas></div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- ============================================================
-             DATASET 03: LIVE VENUES
-             ============================================================ -->
-        <section class="card card-pad">
-          <div class="kicker">Dataset 03</div>
-          <h2 class="h2">Live venue benchmarks</h2>
-          <p class="note">Venue capacity and ticket price benchmarks used to estimate live performance income. Artist cut is set in the simulator — default is 15%.</p>
+          <!-- ============================================================
+               DATASET 03: LIVE VENUES
+               ============================================================ -->
+          <section class="card card-pad">
+            <div class="kicker">Dataset 03</div>
+            <h2 class="h2">Live venue benchmarks</h2>
+            <p class="note">Venue capacity and ticket price benchmarks used to estimate live performance income. Artist cut is set in the simulator — default is 15%.</p>
 
-          <div class="table-wrap" style="margin-top:16px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Venue type</th>
-                  <th>Capacity</th>
-                  <th>Ticket price</th>
-                  <th>Est. gross per show</th>
-                  <th>Est. artist take (15%)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Small Club</td><td>200</td><td>$30</td><td>$6,000</td><td>$900</td></tr>
-                <tr><td>Mid Venue</td><td>700</td><td>$60</td><td>$42,000</td><td>$6,300</td></tr>
-                <tr><td>Large Venue</td><td>3,000</td><td>$90</td><td>$270,000</td><td>$40,500</td></tr>
-                <tr><td>Arena</td><td>10,000</td><td>$120</td><td>$1,200,000</td><td>$180,000</td></tr>
-              </tbody>
-            </table>
-          </div>
+            <div class="table-wrap" style="margin-top:16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Venue type</th>
+                    <th>Capacity</th>
+                    <th>Ticket price</th>
+                    <th>Est. gross per show</th>
+                    <th>Est. artist take (15%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Small Club</td><td>200</td><td>$30</td><td>$6,000</td><td>$900</td></tr>
+                  <tr><td>Mid Venue</td><td>700</td><td>$60</td><td>$42,000</td><td>$6,300</td></tr>
+                  <tr><td>Large Venue</td><td>3,000</td><td>$90</td><td>$270,000</td><td>$40,500</td></tr>
+                  <tr><td>Arena</td><td>10,000</td><td>$120</td><td>$1,200,000</td><td>$180,000</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div class="viz-grid">
-            <div class="viz">
-              <strong>Venue Capacity</strong>
-              <span>How many fans each venue type holds</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-venue-cap"></canvas></div>
+            <!-- Two charts only — Artist Take removed -->
+            <div class="viz-grid-2">
+              <div class="viz">
+                <strong>Venue Capacity</strong>
+                <span>How many fans each venue type holds</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-venue-cap"></canvas></div>
+              </div>
+              <div class="viz">
+                <strong>Ticket Price by Venue</strong>
+                <span>How ticket price scales with venue size</span>
+                <div class="viz-canvas-wrap"><canvas id="chart-venue-ticket"></canvas></div>
+              </div>
             </div>
-            <div class="viz">
-              <strong>Artist Take per Show</strong>
-              <span>Estimated earnings at 15% cut by venue</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-venue-take"></canvas></div>
-            </div>
-            <div class="viz">
-              <strong>Ticket Price by Venue</strong>
-              <span>How ticket price scales with venue size</span>
-              <div class="viz-canvas-wrap"><canvas id="chart-venue-ticket"></canvas></div>
-            </div>
-          </div>
-        </section>
+          </section>
 
+        </div>
       </div>
-    </div>
+    </section>
+
   </main>
 
   <footer class="footer">
@@ -259,7 +263,7 @@
     async function buildCharts() {
       await initAllData();
 
-      // ── Populate streaming table ──────────────────────────────
+      // ── Streaming table ───────────────────────────────────────
       const stTbody = document.getElementById('tbody-streaming');
       if (stTbody) {
         stTbody.innerHTML = '';
@@ -276,7 +280,7 @@
         });
       }
 
-      // ── Populate merch table ──────────────────────────────────
+      // ── Merch table ───────────────────────────────────────────
       const mTbody = document.getElementById('tbody-merch');
       if (mTbody) {
         mTbody.innerHTML = '';
@@ -312,15 +316,16 @@
         options: barOpts('$')
       });
 
-      // Chart 2 — Platform CPM at Mid
+      // Chart 2 — Platform CPM at Mid (no TikTok)
       new Chart(document.getElementById('chart-platform-cpm'), {
         type: 'bar',
         data: {
-          labels: ['Spotify','YouTube','Instagram','TikTok'],
+          labels: ['Spotify','YouTube','Instagram'],
           datasets: [{ data: [
-            midCPM.spotify||0, midCPM.youtube||0,
-            midCPM.instagram||0, midCPM.tiktok||0
-          ], backgroundColor: COLORS, borderRadius: 6 }]
+            midCPM.spotify   || 0,
+            midCPM.youtube   || 0,
+            midCPM.instagram || 0
+          ], backgroundColor: [COLORS[0], COLORS[1], COLORS[2]], borderRadius: 6 }]
         },
         options: barOpts('$')
       });
@@ -335,11 +340,11 @@
       });
 
       // ── DATASET 02 CHARTS ─────────────────────────────────────
-      const items      = Object.values(MERCH);
-      const names      = items.map(m => m.name);
-      const profits    = items.map(m => m.profit);
-      const costs      = items.map(m => parseFloat((m.retail - m.profit).toFixed(2)));
-      const margins    = items.map(m => Math.round(m.margin * 100));
+      const items   = Object.values(MERCH);
+      const names   = items.map(m => m.name);
+      const profits = items.map(m => m.profit);
+      const costs   = items.map(m => parseFloat((m.retail - m.profit).toFixed(2)));
+      const margins = items.map(m => Math.round(m.margin * 100));
 
       // Chart 4 — Profit vs Cost stacked
       new Chart(document.getElementById('chart-merch-split'), {
@@ -397,11 +402,10 @@
         }
       });
 
-      // ── DATASET 03 CHARTS ─────────────────────────────────────
+      // ── DATASET 03 CHARTS — two only ──────────────────────────
       const venues     = ['Small Club','Mid Venue','Large Venue','Arena'];
       const capacities = [200, 700, 3000, 10000];
       const tickets    = [30, 60, 90, 120];
-      const take       = [900, 6300, 40500, 180000];
 
       // Chart 7 — Capacity
       new Chart(document.getElementById('chart-venue-cap'), {
@@ -412,16 +416,7 @@
         options: barOpts()
       });
 
-      // Chart 8 — Artist take
-      new Chart(document.getElementById('chart-venue-take'), {
-        type: 'bar',
-        data: { labels: venues, datasets: [{
-          data: take, backgroundColor: GOLD, borderRadius: 6
-        }]},
-        options: barOpts('$')
-      });
-
-      // Chart 9 — Ticket price line
+      // Chart 8 — Ticket price line
       new Chart(document.getElementById('chart-venue-ticket'), {
         type: 'line',
         data: { labels: venues, datasets: [{

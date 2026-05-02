@@ -58,18 +58,38 @@
 
     .quote {
       font-style: italic;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--muted);
       border-left: 3px solid var(--gold);
-      padding-left: 14px;
-      margin: 0 0 12px;
+      padding: 12px 16px;
+      margin: 8px 0 16px;
       line-height: 1.6;
+    }
+
+    .interview-item {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .interview-item p {
+      line-height: 1.7;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 900px) {
       .persona-grid { grid-template-columns: 1fr; }
-
-      
+      .grid-4 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -175,7 +195,6 @@
             <p class="note" style="margin-bottom:24px;">Based on the results of your simulation, Streamonomics assigns you one of three artist personas. Each reflects a different approach to building a sustainable music career — shaped by how you weight streaming, live performance, and merchandise.</p>
 
             <div class="persona-grid">
-
               <div class="persona-card">
                 <div class="persona-image" style="background-image: url('assets/persona-cataloger.png');"></div>
                 <div class="persona-body">
@@ -202,7 +221,6 @@
                   <p>Turns fan loyalty into direct revenue through merch, content, and direct-to-fan products. Your audience doesn't just listen — they invest in you.</p>
                 </div>
               </div>
-
             </div>
           </section>
 
@@ -212,29 +230,40 @@
           <section class="card card-pad">
             <div class="kicker">User Research</div>
             <h2 class="h2">User Interviews</h2>
-            <p class="note" style="margin-bottom:24px;">Feedback from three independent users who tested the simulator prototype. Their responses shaped the current experience.</p>
+            <p class="note" style="margin-bottom:24px;">Four independent users tested the simulator prototype across different cities and music backgrounds. Their feedback directly shaped the current experience.</p>
 
-            <div class="grid-3">
+            <div class="grid-4">
 
               <article class="interview-item">
-                <div class="interview-meta">Anonymous User 01</div>
-                <h3>The tool has strong potential — but inputs need grounding</h3>
-                <p class="quote">"The experience feels more like filling out a model than exploring a system."</p>
-                <p><strong>Takeaway:</strong> Inputs like audience size and fan strength felt abstract without real-world reference points. Wants to see a default outcome first and adjust from there — exploration over configuration.</p>
+                <div class="interview-meta">Emily Carter · Los Angeles</div>
+                <h3>Inputs need grounding in real behavior</h3>
+                <p class="quote">"The tool has strong potential, but if it is meant to support real decision-making, the inputs need to feel more grounded in real user behavior rather than abstract sliders."</p>
+                <p>Music production student and part-time freelance producer. Understood the logic but found concepts like fan strength and audience size too abstract to set with confidence — which made the final result feel unreliable.</p>
+                <p><strong>Takeaway:</strong> Start with a default scenario. Let users explore before they configure.</p>
               </article>
 
               <article class="interview-item">
-                <div class="interview-meta">Anonymous User 02</div>
-                <h3>Engaging once results appear — onboarding needs acceleration</h3>
-                <p class="quote">"It became more engaging when I started to see how the income changed, especially in the touring section."</p>
-                <p><strong>Takeaway:</strong> The step-by-step flow felt slow before any results appeared. Responded well to direct cause-and-effect feedback. Wants the system to suggest what to try next, not just report what happened.</p>
+                <div class="interview-meta">Marcus Lee · Los Angeles</div>
+                <h3>Cause and effect need to be visible earlier</h3>
+                <p class="quote">"It became more engaging when I could see how venue size and number of shows affected income. That part felt intuitive and made me want to keep exploring."</p>
+                <p>Independent guitarist and part-time music teacher. The early steps felt random with no feedback on whether choices were good. Became engaged once income responded visibly to decisions in the touring section.</p>
+                <p><strong>Takeaway:</strong> Show results sooner. Guide users toward what to try next.</p>
               </article>
 
               <article class="interview-item">
-                <div class="interview-meta">Anonymous User 03</div>
-                <h3>Strong concept — persona and identity could build throughout</h3>
-                <p class="quote">"The persona is only introduced at the end, which feels like a missed opportunity."</p>
-                <p><strong>Takeaway:</strong> Wants stronger emotional feedback throughout — not just at the results screen. Sees potential in pushing toward a life-simulation feel where identity builds progressively, not all at once.</p>
+                <div class="interview-meta">Sophia Bennet · New York</div>
+                <h3>Identity should build throughout — not just appear at the end</h3>
+                <p class="quote">"The system tells me the result, but I want it to react to my choices. I want to feel like I am becoming a certain type of artist through the experience."</p>
+                <p>UX designer and independent singer-songwriter. Found the structure clear but too rational. The artist persona felt like a missed opportunity — it only appeared at the end instead of building progressively through the flow.</p>
+                <p><strong>Takeaway:</strong> Build artist identity throughout. Make the system react, not just report.</p>
+              </article>
+
+              <article class="interview-item">
+                <div class="interview-meta">Daniel Rivera · Los Angeles</div>
+                <h3>The survival gap is clear — the path forward is not</h3>
+                <p class="quote">"Independent musicians do not just need numbers — we need survival plans."</p>
+                <p>Freelance drummer and session musician balancing multiple income streams. Appreciated the cost-of-living connection and the survival meter. But once the gap was shown, the next step wasn't obvious — more gigs? A cheaper city? A part-time job?</p>
+                <p><strong>Takeaway:</strong> Show the gap, then show how to close it. Recommendations over results.</p>
               </article>
 
             </div>
