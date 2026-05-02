@@ -5,6 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>STREAMONOMICS | Data</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .viz-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .viz {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .viz strong {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .viz span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .viz-canvas-wrap {
+      position: relative;
+      height: 180px;
+    }
+    @media (max-width: 900px) {
+      .viz-grid { grid-template-columns: 1fr; }
+    }
+
+    .hero-grid.compact > div {
+  padding-top: 48px;
+  padding-bottom: 48px;
+  padding-left: 60px;
+}
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -13,159 +53,166 @@
       <nav class="nav" aria-label="Primary">
         <a href="index.html">Home</a>
         <a href="resources.html">Resources</a>
-       
         <a class="active" href="data.html">Data</a>
         <a href="simulator.html">Simulator</a>
       </nav>
-      <a class="btn btn-primary" href="simulator.html">Open Simulator</a>
+      <a class="btn btn-primary" href="simulator.html">Try the Simulator</a>
     </div>
   </header>
 
-  <main class="section">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <div class="kicker">Data outputs</div>
-          <h1 class="h2">Three tables, nine visuals</h1>
-        </div>
-       
-      </div>
+  <main>
 
-      <div class="stack">
+    <!-- TITLE SECTION — white/beige split like homepage -->
+    <section class="hero">
+      <div class="hero-grid compact">
+        <div>
+          <div class="kicker">The numbers behind the simulator</div>
+          <h1 class="h2">Where the data comes from</h1>
+          <p class="lead">Every estimate in the simulator is built on real data. These are the three datasets powering the income calculations.</p>
+        </div>
+        <div class="hero-panel"></div>
+      </div>
+    </section>
+  
+    <section class="section">
+      <div class="container">
+        <div class="stack">
+
+        <!-- ============================================================
+             DATASET 01: STREAMING CPM
+             ============================================================ -->
         <section class="card card-pad">
           <div class="kicker">Dataset 01</div>
-          <h2 class="h2">Streaming revenue</h2>
-          <p class="note">Table + 3 visualization slots for streaming, listener counts, and tier comparisons.</p>
+          <h2 class="h2">Streaming CPM rates</h2>
+          <p class="note">CPM (cost per thousand streams) by artist tier and platform. These rates determine how much an artist earns per 1,000 plays in the simulator.</p>
 
           <div class="table-wrap" style="margin-top:16px;">
             <table>
               <thead>
                 <tr>
                   <th>Tier</th>
-                  <th>Monthly streams</th>
-                  <th>Estimated income</th>
-                  <th>Notes</th>
+                  <th>Spotify CPM</th>
+                  <th>YouTube CPM</th>
+                  <th>Instagram CPM</th>
+                  <th>TikTok CPM</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>Nano</td>
-                  <td>50,000</td>
-                  <td>$75 <small>Placeholder value</small></td>
-                  <td>Starter audience</td>
-                </tr>
-                <tr>
-                  <td>Developing</td>
-                  <td>250,000</td>
-                  <td>$375 <small>Placeholder value</small></td>
-                  <td>Growing catalog</td>
-                </tr>
-                <tr>
-                  <td>Established</td>
-                  <td>1,000,000</td>
-                  <td>$1,500 <small>Placeholder value</small></td>
-                  <td>Higher reach</td>
-                </tr>
+              <tbody id="tbody-streaming">
+                <tr><td colspan="5" style="color:var(--muted);font-style:italic;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
 
           <div class="viz-grid">
-            <div class="viz"><strong>Bar chart</strong><span>Stream count by tier</span><div class="viz-placeholder"></div></div>
-            <div class="viz"><strong>Line chart</strong><span>Income over audience growth</span><div class="viz-placeholder"></div></div>
-            <div class="viz"><strong>Donut chart</strong><span>Income share by stream source</span><div class="viz-placeholder"></div></div>
+            <div class="viz">
+              <strong>Spotify CPM by Tier</strong>
+              <span>How much Spotify pays per 1,000 streams as you grow</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-spotify-cpm"></canvas></div>
+            </div>
+            <div class="viz">
+              <strong>Platform CPM at Mid Tier</strong>
+              <span>CPM rates side by side for a mid-size artist</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-platform-cpm"></canvas></div>
+            </div>
+            <div class="viz">
+              <strong>Est. Monthly Income by Tier</strong>
+              <span>Spotify income at mid-range stream count per tier</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-streaming-income"></canvas></div>
+            </div>
           </div>
         </section>
 
+        <!-- ============================================================
+             DATASET 02: MERCH MARGINS
+             ============================================================ -->
         <section class="card card-pad">
           <div class="kicker">Dataset 02</div>
-          <h2 class="h2">Social media revenue</h2>
-          <p class="note">Table + 3 visualization slots for followers, impressions, and creator tier comparisons.</p>
+          <h2 class="h2">Merch margins</h2>
+          <p class="note">Retail price, production cost, and profit per unit for each merch item. Margin is calculated as profit divided by retail price.</p>
 
           <div class="table-wrap" style="margin-top:16px;">
             <table>
               <thead>
                 <tr>
-                  <th>Platform</th>
-                  <th>Monthly reach</th>
-                  <th>Estimated income</th>
-                  <th>Notes</th>
+                  <th>Item</th>
+                  <th>Retail price</th>
+                  <th>Production cost</th>
+                  <th>Profit per unit</th>
+                  <th>Margin %</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>Instagram</td>
-                  <td>15,000</td>
-                  <td>$120 <small>Placeholder value</small></td>
-                  <td>Brand visibility</td>
-                </tr>
-                <tr>
-                  <td>TikTok</td>
-                  <td>30,000</td>
-                  <td>$300 <small>Placeholder value</small></td>
-                  <td>Short-form content</td>
-                </tr>
-                <tr>
-                  <td>YouTube</td>
-                  <td>10,000</td>
-                  <td>$180 <small>Placeholder value</small></td>
-                  <td>Long-form video</td>
-                </tr>
+              <tbody id="tbody-merch">
+                <tr><td colspan="5" style="color:var(--muted);font-style:italic;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
 
           <div class="viz-grid">
-            <div class="viz"><strong>Grouped bars</strong><span>Platform-by-platform comparison</span><div class="viz-placeholder"></div></div>
-            <div class="viz"><strong>Trend line</strong><span>Follower growth vs. earnings</span><div class="viz-placeholder"></div></div>
-            <div class="viz"><strong>Scatter plot</strong><span>Reach vs. income efficiency</span><div class="viz-placeholder"></div></div>
+            <div class="viz">
+              <strong>Profit vs Cost per Unit</strong>
+              <span>How much you keep vs. what it costs to make</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-merch-split"></canvas></div>
+            </div>
+            <div class="viz">
+              <strong>Margin % by Item</strong>
+              <span>Which item has the best margin</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-merch-margin"></canvas></div>
+            </div>
+            <div class="viz">
+              <strong>Retail Price Breakdown</strong>
+              <span>Cost vs. profit as a share of retail price</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-merch-retail"></canvas></div>
+            </div>
           </div>
         </section>
 
+        <!-- ============================================================
+             DATASET 03: LIVE VENUES
+             ============================================================ -->
         <section class="card card-pad">
           <div class="kicker">Dataset 03</div>
-          <h2 class="h2">Live performance income</h2>
-          <p class="note">Table + 3 visualization slots for venue size, tickets, and monthly performance revenue.</p>
+          <h2 class="h2">Live venue benchmarks</h2>
+          <p class="note">Venue capacity and ticket price benchmarks used to estimate live performance income. Artist cut is set in the simulator — default is 15%.</p>
 
           <div class="table-wrap" style="margin-top:16px;">
             <table>
               <thead>
                 <tr>
-                  <th>Venue size</th>
-                  <th>Shows per month</th>
-                  <th>Take of door</th>
-                  <th>Estimated income</th>
+                  <th>Venue type</th>
+                  <th>Capacity</th>
+                  <th>Ticket price</th>
+                  <th>Est. gross per show</th>
+                  <th>Est. artist take (15%)</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Small</td>
-                  <td>2</td>
-                  <td>70%</td>
-                  <td>$2,800 <small>Placeholder value</small></td>
-                </tr>
-                <tr>
-                  <td>Medium</td>
-                  <td>4</td>
-                  <td>65%</td>
-                  <td>$5,200 <small>Placeholder value</small></td>
-                </tr>
-                <tr>
-                  <td>Large</td>
-                  <td>1</td>
-                  <td>75%</td>
-                  <td>$4,500 <small>Placeholder value</small></td>
-                </tr>
+                <tr><td>Small Club</td><td>200</td><td>$30</td><td>$6,000</td><td>$900</td></tr>
+                <tr><td>Mid Venue</td><td>700</td><td>$60</td><td>$42,000</td><td>$6,300</td></tr>
+                <tr><td>Large Venue</td><td>3,000</td><td>$90</td><td>$270,000</td><td>$40,500</td></tr>
+                <tr><td>Arena</td><td>10,000</td><td>$120</td><td>$1,200,000</td><td>$180,000</td></tr>
               </tbody>
             </table>
           </div>
 
           <div class="viz-grid">
-            <div class="viz"><strong>Histogram</strong><span>Venue size distribution</span><div class="viz-placeholder"></div></div>
-            <div class="viz"><strong>Stacked bars</strong><span>Door revenue by venue</span><div class="viz-placeholder"></div></div>
-            <div class="viz"><strong>Comparison chart</strong><span>Monthly earnings by performance tier</span><div class="viz-placeholder"></div></div>
+            <div class="viz">
+              <strong>Venue Capacity</strong>
+              <span>How many fans each venue type holds</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-venue-cap"></canvas></div>
+            </div>
+            <div class="viz">
+              <strong>Artist Take per Show</strong>
+              <span>Estimated earnings at 15% cut by venue</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-venue-take"></canvas></div>
+            </div>
+            <div class="viz">
+              <strong>Ticket Price by Venue</strong>
+              <span>How ticket price scales with venue size</span>
+              <div class="viz-canvas-wrap"><canvas id="chart-venue-ticket"></canvas></div>
+            </div>
           </div>
         </section>
+
       </div>
     </div>
   </main>
@@ -175,5 +222,229 @@
       ......
     </div>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+    const GOLD   = '#b98a2d';
+    const COLORS = ['#b98a2d','#6366f1','#10b981','#f59e0b'];
+    const GRID   = 'rgba(0,0,0,0.06)';
+    const FONT   = { family: 'Inter, ui-sans-serif, sans-serif', size: 11 };
+
+    Chart.defaults.font  = FONT;
+    Chart.defaults.color = 'rgba(42,42,42,0.55)';
+
+    function barOpts(yPrefix) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: GRID }, ticks: { font: FONT } },
+          y: { grid: { color: GRID }, ticks: { font: FONT,
+            callback: v => (yPrefix || '') + v.toLocaleString() } }
+        }
+      };
+    }
+
+    function donutOpts() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'bottom',
+          labels: { font: FONT, boxWidth: 10 } } }
+      };
+    }
+
+    async function buildCharts() {
+      await initAllData();
+
+      // ── Populate streaming table ──────────────────────────────
+      const stTbody = document.getElementById('tbody-streaming');
+      if (stTbody) {
+        stTbody.innerHTML = '';
+        ['Nano','Micro','Mid','Macro'].forEach(tier => {
+          const d  = CPM[tier] || {};
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${tier}</td>
+            <td>${d.spotify   ? '$' + d.spotify   : '—'}</td>
+            <td>${d.youtube   ? '$' + d.youtube   : '—'}</td>
+            <td>${d.instagram ? '$' + d.instagram : '—'}</td>
+            <td>${d.tiktok    ? '$' + d.tiktok    : '—'}</td>`;
+          stTbody.appendChild(tr);
+        });
+      }
+
+      // ── Populate merch table ──────────────────────────────────
+      const mTbody = document.getElementById('tbody-merch');
+      if (mTbody) {
+        mTbody.innerHTML = '';
+        Object.values(MERCH).forEach(item => {
+          const cost   = (item.retail - item.profit).toFixed(2);
+          const margin = Math.round(item.margin * 100);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.name}</td>
+            <td>$${item.retail.toFixed(2)}</td>
+            <td>$${cost}</td>
+            <td>$${item.profit.toFixed(2)}</td>
+            <td>${margin}%</td>`;
+          mTbody.appendChild(tr);
+        });
+      }
+
+      // ── DATASET 01 CHARTS ─────────────────────────────────────
+      const tiers      = ['Nano','Micro','Mid','Macro'];
+      const spotifyCPM = tiers.map(t => CPM[t]?.spotify || 0);
+      const streamMids = { Nano: 12500, Micro: 110000, Mid: 600000, Macro: 3000000 };
+      const stIncome   = tiers.map(t =>
+        Math.round(((CPM[t]?.spotify || 0) / 1000) * streamMids[t])
+      );
+      const midCPM = CPM['Mid'] || {};
+
+      // Chart 1 — Spotify CPM by tier
+      new Chart(document.getElementById('chart-spotify-cpm'), {
+        type: 'bar',
+        data: { labels: tiers, datasets: [{
+          data: spotifyCPM, backgroundColor: COLORS, borderRadius: 6
+        }]},
+        options: barOpts('$')
+      });
+
+      // Chart 2 — Platform CPM at Mid
+      new Chart(document.getElementById('chart-platform-cpm'), {
+        type: 'bar',
+        data: {
+          labels: ['Spotify','YouTube','Instagram','TikTok'],
+          datasets: [{ data: [
+            midCPM.spotify||0, midCPM.youtube||0,
+            midCPM.instagram||0, midCPM.tiktok||0
+          ], backgroundColor: COLORS, borderRadius: 6 }]
+        },
+        options: barOpts('$')
+      });
+
+      // Chart 3 — Est. monthly income by tier
+      new Chart(document.getElementById('chart-streaming-income'), {
+        type: 'bar',
+        data: { labels: tiers, datasets: [{
+          data: stIncome, backgroundColor: GOLD, borderRadius: 6
+        }]},
+        options: barOpts('$')
+      });
+
+      // ── DATASET 02 CHARTS ─────────────────────────────────────
+      const items      = Object.values(MERCH);
+      const names      = items.map(m => m.name);
+      const profits    = items.map(m => m.profit);
+      const costs      = items.map(m => parseFloat((m.retail - m.profit).toFixed(2)));
+      const margins    = items.map(m => Math.round(m.margin * 100));
+
+      // Chart 4 — Profit vs Cost stacked
+      new Chart(document.getElementById('chart-merch-split'), {
+        type: 'bar',
+        data: { labels: names, datasets: [
+          { label: 'Profit', data: profits, backgroundColor: '#10b981', borderRadius: 4 },
+          { label: 'Cost',   data: costs,   backgroundColor: '#e05555', borderRadius: 4 }
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: 'bottom',
+            labels: { font: FONT, boxWidth: 10 } } },
+          scales: {
+            x: { stacked: true, grid: { color: GRID } },
+            y: { stacked: true, grid: { color: GRID },
+              ticks: { callback: v => '$' + v } }
+          }
+        }
+      });
+
+      // Chart 5 — Margin % donut
+      new Chart(document.getElementById('chart-merch-margin'), {
+        type: 'doughnut',
+        data: { labels: names, datasets: [{
+          data: margins, backgroundColor: COLORS, borderWidth: 2
+        }]},
+        options: {
+          ...donutOpts(),
+          plugins: {
+            ...donutOpts().plugins,
+            tooltip: { callbacks: {
+              label: ctx => ctx.label + ': ' + ctx.raw + '%'
+            }}
+          }
+        }
+      });
+
+      // Chart 6 — Horizontal retail breakdown
+      new Chart(document.getElementById('chart-merch-retail'), {
+        type: 'bar',
+        data: { labels: names, datasets: [
+          { label: 'Profit', data: profits, backgroundColor: '#10b981', borderRadius: 4 },
+          { label: 'Cost',   data: costs,   backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: 4 }
+        ]},
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: 'bottom',
+            labels: { font: FONT, boxWidth: 10 } } },
+          scales: {
+            x: { stacked: true, grid: { color: GRID },
+              ticks: { callback: v => '$' + v } },
+            y: { stacked: true, grid: { color: GRID } }
+          }
+        }
+      });
+
+      // ── DATASET 03 CHARTS ─────────────────────────────────────
+      const venues     = ['Small Club','Mid Venue','Large Venue','Arena'];
+      const capacities = [200, 700, 3000, 10000];
+      const tickets    = [30, 60, 90, 120];
+      const take       = [900, 6300, 40500, 180000];
+
+      // Chart 7 — Capacity
+      new Chart(document.getElementById('chart-venue-cap'), {
+        type: 'bar',
+        data: { labels: venues, datasets: [{
+          data: capacities, backgroundColor: COLORS, borderRadius: 6
+        }]},
+        options: barOpts()
+      });
+
+      // Chart 8 — Artist take
+      new Chart(document.getElementById('chart-venue-take'), {
+        type: 'bar',
+        data: { labels: venues, datasets: [{
+          data: take, backgroundColor: GOLD, borderRadius: 6
+        }]},
+        options: barOpts('$')
+      });
+
+      // Chart 9 — Ticket price line
+      new Chart(document.getElementById('chart-venue-ticket'), {
+        type: 'line',
+        data: { labels: venues, datasets: [{
+          label: 'Ticket Price',
+          data: tickets,
+          borderColor: GOLD,
+          backgroundColor: 'rgba(185,138,45,0.1)',
+          fill: true, tension: 0.4,
+          pointBackgroundColor: GOLD, pointRadius: 5
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: GRID } },
+            y: { grid: { color: GRID },
+              ticks: { callback: v => '$' + v } }
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', buildCharts);
+  </script>
 </body>
 </html>
