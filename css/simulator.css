@@ -8,7 +8,7 @@
 .sim-screen.active { display: block; }
 
 /* --- Entry Screen --- */
-.sim-hero          { text-align: center; padding: 80px 24px; }
+.sim-hero { text-align: center; padding: 80px 24px; }
 .sim-hero .lead    { max-width: 540px; margin: 16px auto 32px; }
 
 
@@ -714,8 +714,6 @@ input[type="range"]   { width: 100%;  accent-color: #6366f1;}
 
 /* --- Navigation --- */
 .sim-nav {
-  position: sticky;
-  bottom: 0;
   z-index: 100;
   background: transparent;
   display: flex;
@@ -941,8 +939,6 @@ input[type="range"] {
 }
 
 .sim-nav {
-  position: sticky;
-  bottom: 0;
   z-index: 100;
   background: transparent;
   display: flex;
