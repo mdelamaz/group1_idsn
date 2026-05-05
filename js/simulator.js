@@ -14,7 +14,7 @@ let S = {
   // Screen 2
   audienceTier: 0,      // 0=Nano, 1=Micro, 2=Mid, 3=Macro
   fanStrength:  0,     // 0–100
-
+  liveSize:    null,   
 
   streamingActivity: 0,
 
@@ -99,10 +99,20 @@ function goTo(n) {
   currentScreen = n;
 
   // On entering screen 4, calculate and populate engines
- if (n === 4) {
-  calcIncome();
-  populateResults();
-}
+   if (n === 2) {
+    onAudienceChange();
+  }
+
+  if (n === 3) {
+    calcIncome();
+    updateStrategyFeedback();
+    updateIncomeChart();
+  }
+
+  if (n === 4) {
+    calcIncome();
+    populateResults();
+  }
 
   // Scroll to top
   window.scrollTo(0, 0);
@@ -347,6 +357,7 @@ function onAudienceChange() {
 
   const streamingSize = document.getElementById('streaming-size')?.value;
   const liveSize = document.getElementById('live-size')?.value;
+  S.liveSize = liveSize || null;
 
   const liveBlock = document.getElementById("audience-live-size");
 if (liveBlock) {
@@ -493,8 +504,11 @@ if (liveBlock) {
 `;
   }
 
-  updateStatusBar();
-  updateStrategyAvailability();
+      updateStatusBar();
+      updateStrategyAvailability();
+      calcIncome();
+      updateStrategyFeedback();
+      updateIncomeChart();
 }
 
 // =============================================================
@@ -502,7 +516,8 @@ if (liveBlock) {
 // =============================================================
 
 function onStrategyChange() {
-  const val = parseInt(document.getElementById('strat-streaming')?.value || 0);
+  const slider = document.getElementById('strat-streaming');
+  const val = slider ? Number(slider.value) : 0;
 
   S.streamingActivity = val;
 
@@ -519,19 +534,44 @@ function onStrategyChange() {
   S.streamingActivityLabel = label;
 
   const el = document.getElementById('val-streaming');
-  if (el) el.textContent = label;
+  if (el) el.textContent = `${val}/100 — ${label}`;
 
   calcIncome();
+  updateStatusBar();
   updateStrategyFeedback();
   updateIncomeChart();
 }
 
 function onTouringChange() {
-  S.showsPerMonth = parseInt(document.getElementById('slider-shows')?.value || 4);
-  S.artistCut     = parseInt(document.getElementById('slider-cut')?.value || 15);
+  const showsSlider = document.getElementById('slider-shows');
+  const cutSlider = document.getElementById('slider-cut');
 
-  document.getElementById('val-shows').textContent = S.showsPerMonth;
-  document.getElementById('val-cut').textContent = S.artistCut + "%";
+  S.showsPerMonth = showsSlider ? Number(showsSlider.value) : 0;
+  S.artistCut = cutSlider ? Number(cutSlider.value) : 0;
+
+  const showsVal = document.getElementById('val-shows');
+  const cutVal = document.getElementById('val-cut');
+
+    const cutHint = document.getElementById('cut-hint');
+  if (cutHint) {
+    if (S.showsPerMonth > 0 && S.artistCut === 0) {
+      cutHint.style.display = 'block';
+    } else {
+      cutHint.style.display = 'none';
+    }
+  }
+
+    if (cutSlider) {
+    cutSlider.disabled = S.showsPerMonth === 0;
+  }
+
+    if (S.showsPerMonth === 0 && cutSlider) {
+    cutSlider.value = 0;
+    S.artistCut = 0;
+  }
+
+  if (showsVal) showsVal.textContent = S.showsPerMonth;
+  if (cutVal) cutVal.textContent = S.artistCut + "%";
 
   calcIncome();
   updateStatusBar();
@@ -540,9 +580,11 @@ function onTouringChange() {
 }
 
 function onMerchChange() {
-  S.attachRate = parseInt(document.getElementById('slider-attach')?.value || 10);
+  const slider = document.getElementById('slider-attach');
+  S.attachRate = slider ? Number(slider.value) : 0;
 
-  document.getElementById('val-attach').textContent = S.attachRate + "%";
+  const el = document.getElementById('val-attach');
+  if (el) el.textContent = S.attachRate + "%";
 
   calcIncome();
   updateStatusBar();
@@ -748,14 +790,6 @@ function updateStrategyAvailability() {
 // =============================================================
 
 function calcIncome() {
-
-
-  console.log("INPUTS:", {
-  streaming: S.streamingActivity,
-  shows: S.showsPerMonth,
-  merch: S.attachRate
-});
-
   S.income.streaming = 0;
   S.income.social = 0;
   S.income.touring = 0;
@@ -764,26 +798,31 @@ function calcIncome() {
 
   const fanMult = S.fanStrength / 100;
 
-  const baseStreaming = 1000;
-  const baseTouring   = 1000;
-  const baseMerch     = 1000;
+  // STREAMING: now scales directly with release volume
+  const streamingMult = S.streamingActivity / 100;
+  S.income.streaming = 1300 * streamingMult;
 
-  const wStreaming = S.streamingActivity / 100; 
-  const cutMultiplier = S.artistCut / 100;
-  const wTouring = (S.showsPerMonth / 10) * cutMultiplier;
-  const wMerch     = S.attachRate / 30;
-
-  const totalW = wStreaming + wTouring + wMerch || 1;
-
-  const nStreaming = wStreaming / totalW;
-  const nTouring   = wTouring / totalW;
-  const nMerch     = wMerch / totalW;
-
-  S.income.streaming = baseStreaming * nStreaming;
-  S.income.touring   = baseTouring   * nTouring;
-  S.income.merch     = baseMerch     * nMerch;
-
+  // SOCIAL: tied to streaming output
   S.income.social = S.income.streaming * 0.3;
+
+  // TOURING
+ const cutMultiplier = S.artistCut / 100;
+
+const venueMultMap = {
+  small: 0.7,
+  medium: 1.0,
+  large: 1.6,
+  arena: 2.4
+};
+
+const venueMult = venueMultMap[S.liveSize] || 0;
+
+const touringBase = (S.showsPerMonth / 10) * cutMultiplier * fanMult * venueMult;
+S.income.touring = 1000 * touringBase;
+
+  // MERCH
+  const merchBase = S.attachRate / 30;
+  S.income.merch = 1000 * merchBase * fanMult;
 
   S.income.total =
     S.income.streaming +
@@ -791,10 +830,9 @@ function calcIncome() {
     S.income.touring +
     S.income.merch;
 
-  // ✅ MOVE THESE INSIDE
-  console.log("INCOME TOTAL:", S.income.total);
   updateStatusBar();
 }
+
 
 // =============================================================
 //  SCREEN 4: FINAL CHART
@@ -945,13 +983,202 @@ function populateResults() {
   // =========================
   // PERSONA
   // =========================
+  
   buildPersona();
 
-  // =========================
-  // EXPLANATION + RECS (we’ll wire next)
-  // =========================
+function updateAvatarSwitcher() {
+  const stack = document.getElementById("avatar-stack");
+  if (!stack) return;
+
+  const chips = Array.from(stack.querySelectorAll(".avatar-chip"));
+  if (!chips.length) return;
+
+  const streaming = Number(S.income.streaming) || 0;
+  const touring = Number(S.income.touring) || 0;
+  const merch = Number(S.income.merch) || 0;
+
+  let activeRole = "cataloger";
+
+  if (touring >= streaming && touring >= merch) {
+    activeRole = "headliner";
+  } else if (merch >= streaming && merch >= touring) {
+    activeRole = "brand-builder";
+  }
+
+const hero = document.getElementById("avatar-hero");
+
+if (hero) {
+  const map = {
+    "cataloger": "assets/persona-cataloger.png",
+    "headliner": "assets/persona-showman.png",
+    "brand-builder": "assets/persona-brand.png"
+  };
+
+  const src = map[activeRole];
+
+  hero.innerHTML = `<img src="${src}" alt="${activeRole} persona">`;
+}
+
+  chips.forEach(chip => chip.classList.remove("active"));
+
+  const activeChip = stack.querySelector(`.avatar-chip[data-role="${activeRole}"]`);
+  if (activeChip) activeChip.classList.add("active");
+}
+
+  
+  updateAvatarSwitcher();
   buildFinalExplanation(total, cost);
-  buildRecommendations(cost);
+
+
+  // =========================
+  // EXPLANATION + RECS 
+  // =========================
+function buildFinalExplanation(total, cost) {
+  const el = document.getElementById("final-explanation");
+  if (!el) return;
+
+  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
+  const liveEnabled = document.getElementById("aud-live")?.checked;
+
+  const streaming = S.income.streaming;
+  const live = S.income.touring;
+  const merch = S.income.merch;
+
+  let dominant = "none";
+  if (streaming >= live && streaming >= merch) dominant = "streaming";
+  else if (live >= streaming && live >= merch) dominant = "live";
+  else dominant = "merch";
+
+  const cards = [];
+
+  // Main status
+  cards.push({
+    icon: total < cost ? "🔴" : "🟢",
+    title: total < cost ? "Not Yet Sustainable" : "Sustainable",
+    body: total < cost
+      ? "Your current strategy does not generate enough income to cover your cost of living."
+      : "Your current strategy is covering your cost of living."
+  });
+
+  // Dominant stream
+  if (dominant === "streaming") {
+    cards.push({
+      icon: "🎵",
+      title: "Streaming Leads Your Model",
+      body: "Your income is primarily driven by streaming, which is passive but slower to grow."
+    });
+  } else if (dominant === "live") {
+    cards.push({
+      icon: "🎤",
+      title: "Live Performance Leads Your Model",
+      body: "Your income is driven by live shows, which can be strong but requires consistent effort."
+    });
+  } else if (dominant === "merch") {
+    cards.push({
+      icon: "👕",
+      title: "Merch Leads Your Model",
+      body: "Your income relies heavily on fan spending, which means engagement is doing the work."
+    });
+  }
+
+  // Structural gaps
+  if (!streamingEnabled && liveEnabled) {
+    cards.push({
+      icon: "📣",
+      title: "Missing Online Growth",
+      body: "You rely on live performance, but your audience growth is limited without a streaming presence."
+    });
+  }
+
+  if (streamingEnabled && !liveEnabled) {
+    cards.push({
+      icon: "🏟️",
+      title: "Missing Live Conversion",
+      body: "You are building reach online, but you are not converting that audience into live revenue."
+    });
+  }
+
+  if (!streamingEnabled && !liveEnabled) {
+    cards.push({
+      icon: "⚠️",
+      title: "No Active Growth Channels",
+      body: "You currently lack both audience growth and monetization channels."
+    });
+  }
+
+  // Improvement cards
+  const improvements = [];
+
+  if (S.income.streaming < S.income.touring) {
+    improvements.push({
+      icon: "🎵",
+      title: "Increase Streaming",
+      body: "Invest in streaming to build a larger, more scalable audience."
+    });
+  }
+
+  if (S.income.touring < S.income.streaming) {
+    improvements.push({
+      icon: "🎤",
+      title: "Increase Live Shows",
+      body: "Add more live performances to convert fans into revenue."
+    });
+  }
+
+  if (S.attachRate < 15) {
+    improvements.push({
+      icon: "👕",
+      title: "Improve Merch Strategy",
+      body: "Stronger branding can increase fan spending."
+    });
+  }
+
+  if (S.income.total < cost) {
+    improvements.push({
+      icon: "📈",
+      title: "Scale One Core Stream",
+      body: "Your current model is not sustainable. Focus on the strongest revenue stream first."
+    });
+  }
+
+  if (improvements.length === 0) {
+    improvements.push({
+      icon: "✅",
+      title: "Keep Scaling",
+      body: "Your strategy is balanced. Focus on scaling what is already working."
+    });
+  }
+
+  el.innerHTML = `
+    ${cards.map(item => `
+      <div class="meaning-card">
+        <div class="meaning-head">
+          <span class="meaning-icon">${item.icon}</span>
+          <span>${item.title}</span>
+        </div>
+        <div>${item.body}</div>
+      </div>
+    `).join("")}
+
+    <div class="meaning-card" style="margin-top:8px;">
+      <div class="meaning-head">
+        <span class="meaning-icon">💡</span>
+        <span>How to Improve Your Income</span>
+      </div>
+    </div>
+
+    ${improvements.map(item => `
+      <div class="recommendation-card">
+        <div class="meaning-head">
+          <span class="meaning-icon">${item.icon}</span>
+          <span>${item.title}</span>
+        </div>
+        <div>${item.body}</div>
+      </div>
+    `).join("")}
+  `;
+}
+
 
   // =========================
   // STATUS BAR
@@ -1161,34 +1388,9 @@ function buildFinalExplanation(total, cost) {
 }
 
 
-function buildRecommendations(cost) {
-  const el = document.getElementById("recommendations-list");
-  if (!el) return;
 
-  let recs = [];
 
-  if (S.income.streaming < S.income.touring) {
-    recs.push("Invest in streaming to build a larger, scalable audience.");
-  }
 
-  if (S.income.touring < S.income.streaming) {
-    recs.push("Increase live performances to convert your audience into revenue.");
-  }
-
-  if (S.attachRate < 15) {
-    recs.push("Improve merch strategy — stronger branding can increase fan spending.");
-  }
-
-  if (S.income.total < cost) {
-    recs.push("Your current model is not sustainable — focus on scaling one core revenue stream.");
-  }
-
-  if (recs.length === 0) {
-    recs.push("Your strategy is well balanced. Focus on scaling what is already working.");
-  }
-
-  el.innerHTML = recs.map(r => `<div class="wit-card">${r}</div>`).join("");
-}
 
 // =============================================================
 //  PERSISTENT STATUS BAR
@@ -1202,11 +1404,12 @@ function updateStatusBar() {
 
   const data = CITIES[S.city];
   const cost = getCityCost(data);
-  const income = (currentScreen >= 3 && S.income.total > 0) ? S.income.total : 0;
+  const income = (currentScreen >= 2 && S.income.total > 0) ? S.income.total : 0;
   const fill = document.getElementById('status-meter-fill');
 
   bar.style.display = 'flex';
   setText('status-city', S.city);
+  setText('status-cost', fmt(cost));
   setText('status-income', income > 0 ? fmt(income) : '—');
 
   if (!fill) return;
