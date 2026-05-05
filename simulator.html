@@ -43,6 +43,26 @@
       flex-shrink: 0;
     }
 
+      .sb-city-copy {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    #status-city {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.01em;
+    }
+
+    .sb-cost {
+      margin-top: 2px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #ef4444;
+    }
+
     .sb-city .sb-icon {
       font-size: 0.95rem;
       line-height: 1;
@@ -117,7 +137,7 @@
     }
 
     .sim-main {
-      padding-top: 0px;
+      padding-top: 120px;
     }
 
     /* ============================================================
@@ -244,9 +264,12 @@
 
   <div id="sim-statusbar">
   <div class="sb-city">
-    <span class="sb-icon">🏙️</span>
+  <span class="sb-icon">🏙️</span>
+  <div class="sb-city-copy">
     <span id="status-city">—</span>
+    <span id="status-cost" class="sb-cost">—</span>
   </div>
+</div>
   <div class="sb-sep"></div>
   <div class="sb-income">
     <span class="sb-income-label">Income</span>
@@ -615,6 +638,10 @@
           
         </div>
 
+        <div id="cut-hint" class="cut-hint" style="display:none;">
+          Select your artist cut to calculate live income.
+        </div>
+
         <div class="slider-group">
           <label>Artist Cut (%)</label>
           <p class="slider-hint">Your share of ticket revenue</p>
@@ -729,132 +756,130 @@
 
 
   <!-- =========================
-       HEADLINE RESULT
+       page 4: RESULTS
        ========================= -->
 
 <section class="sim-screen" id="screen-4">
 
-  <!-- =========================
-       HEADLINE RESULT
-       ========================= -->
+  <div class="results-topline">
+    <div class="kicker">Step 4 of 4</div>
+    <h2 class="h2">Your Final Simulation Results</h2>
+    <p class="note">See how your strategy, audience, and city combine into one monthly outcome.</p>
+  </div>
+
+  <!-- RED / SURVIVAL BAR -->
   <div class="verdict-banner" id="verdict-banner">
-    <div class="verdict-income" id="verdict-income">$0 / mo</div>
-    <div class="verdict-status" id="verdict-status">—</div>
-    <div class="verdict-delta" id="verdict-delta">—</div>
+    <div class="verdict-main">
+      <div class="verdict-income" id="verdict-income">$0 / mo</div>
+      <div class="verdict-status" id="verdict-status">—</div>
+      <div class="verdict-delta" id="verdict-delta">—</div>
+    </div>
+
+    <div class="strategy-mini-row">
+      <div class="strategy-mini-card">
+        <span>🎵 Streaming</span>
+        <strong id="res-strategy-streaming">—</strong>
+      </div>
+      <div class="strategy-mini-card">
+        <span>🎤 Live</span>
+        <strong id="res-strategy-touring">—</strong>
+      </div>
+      <div class="strategy-mini-card">
+        <span>👕 Merch</span>
+        <strong id="res-strategy-merch">—</strong>
+      </div>
+    </div>
   </div>
 
   <div class="results-grid">
+    <!-- LEFT COLUMN -->
+    <div class="results-col results-col-wide">
 
-    <!-- =========================
-         LEFT COLUMN
-         ========================= -->
-    <div class="results-col">
-
-      <!-- 🔍 EXPLANATION -->
-      <div class="results-section">
-        <h3>What This Means</h3>
-        <div class="insight-box" id="final-explanation">
-          Your strategy results will be explained here.
-        </div>
-      </div>
-
-      <!-- 👤 PROFILE -->
-      <div class="results-section">
-        <h3>Your Artist Profile</h3>
-        <div class="persona-card" id="persona-card"></div>
-      </div>
-
-      <!-- 🧠 STRATEGY SUMMARY -->
-      <div class="results-section">
-        <h3>Your Strategy Mix</h3>
-
-        <div class="result-card">
-          <span>🎵 Streaming</span>
-          <strong id="res-strategy-streaming">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>🎤 Live Performances</span>
-          <strong id="res-strategy-touring">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>👕 Merch</span>
-          <strong id="res-strategy-merch">—</strong>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- =========================
-         RIGHT COLUMN
-         ========================= -->
-    <div class="results-col">
-
-      <!-- 📊 CHART -->
-      <div class="results-section">
+      <div class="results-section results-card">
         <h3>Income Breakdown</h3>
-        <canvas id="chart-income-final" width="260" height="260"></canvas>
+
+        <div class="income-layout">
+          <div class="income-chart-wrap">
+            <canvas id="chart-income-final" width="240" height="240"></canvas>
+          </div>
+
+          <div class="income-table">
+            <div class="result-card">
+              <span>🎵 Streaming</span>
+              <strong id="res-streaming">—</strong>
+            </div>
+            <div class="result-card">
+              <span>🎤 Live Performances</span>
+              <strong id="res-touring">—</strong>
+            </div>
+            <div class="result-card">
+              <span>👕 Merch</span>
+              <strong id="res-merch">—</strong>
+            </div>
+            <div class="result-card total">
+              <span>Total Income</span>
+              <strong id="res-total">—</strong>
+            </div>
+            <div class="result-card">
+              <span>Cost of Living</span>
+              <strong id="res-cost">—</strong>
+            </div>
+            <div class="result-card">
+              <span>Net</span>
+              <strong id="res-net">—</strong>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 💰 NUMBERS -->
-      <div class="results-section">
-
-        <div class="result-card">
-          <span>🎵 Streaming</span>
-          <strong id="res-streaming">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>🎤 Live Performances</span>
-          <strong id="res-touring">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>👕 Merch</span>
-          <strong id="res-merch">—</strong>
-        </div>
-
-        <div class="result-card total">
-          <span>Total Income</span>
-          <strong id="res-total">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>Cost of Living</span>
-          <strong id="res-cost">—</strong>
-        </div>
-
-        <div class="result-card">
-          <span>Net</span>
-          <strong id="res-net">—</strong>
-        </div>
-
+      <div class="results-section results-card">
+        <h3>What This Means</h3>
+        <div id="final-explanation" class="meaning-grid"></div>
+        <div id="recommendations-list" class="recommendation-grid"></div>
       </div>
 
     </div>
 
+    <!-- RIGHT COLUMN -->
+    <div class="results-col results-col-narrow">
+      <div class="results-section results-card">
+        <h3>Your Artist Profile</h3>
+
+        <div class="persona-card" id="persona-card"></div>
+
+        <div id="avatar-hero" class="avatar-hero"></div>
+        <div class="avatar-stack" id="avatar-stack">
+          <div class="avatar-chip" data-role="cataloger">
+            <span class="avatar-emoji">📚</span>
+            <div>
+              <strong>The Cataloger</strong>
+              <p>Slow, steady income through catalog depth.</p>
+            </div>
+          </div>
+          <div class="avatar-chip" data-role="headliner">
+            <span class="avatar-emoji">🎤</span>
+            <div>
+              <strong>The Headliner</strong>
+              <p>Momentum comes from live shows and turnout.</p>
+            </div>
+          </div>
+          <div class="avatar-chip" data-role="brand-builder">
+            <span class="avatar-emoji">🛍️</span>
+            <div>
+              <strong>The Brand Builder</strong>
+              <p>Earns through merch and fan conversion.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- =========================
-       RECOMMENDATIONS
-       ========================= -->
-  <div class="results-section">
-    <h3>How to Improve Your Income</h3>
-    <div id="recommendations-list"></div>
-  </div>
-
-
-  <!-- =========================
-       CTA
-       ========================= -->
   <div class="sim-nav" style="justify-content:center; gap:16px; flex-wrap:wrap;">
     <button class="btn btn-secondary" onclick="goTo(3)">← Adjust Strategy</button>
     <button class="btn btn-secondary" onclick="goTo(1)">Change City</button>
     <button class="btn btn-primary" onclick="restartSim()">Start Over</button>
   </div>
-
-
 
 </section>
 
