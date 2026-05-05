@@ -91,6 +91,7 @@
             <div class="kicker">Dataset 01</div>
             <h2 class="h2">Streaming CPM rates</h2>
             <p class="note">CPM (cost per thousand streams) by artist tier and platform. These rates determine how much an artist earns per 1,000 plays in the simulator.</p>
+            <p class="note" style="margin-top:8px;"><strong>What this shows:</strong> Even at the highest tier, streaming payouts remain extremely low — reinforcing that scale is required to generate meaningful income.</p>
 
             <div class="table-wrap" style="margin-top:16px;">
               <table>
@@ -112,7 +113,7 @@
             <div class="viz-grid">
               <div class="viz">
                 <strong>Spotify CPM by Tier</strong>
-                <span>How much Spotify pays per 1,000 streams as you grow</span>
+                <span>How much Spotify pays per 1,000 streams as you grow · Hover over bars to compare income across tiers</span>
                 <div class="viz-canvas-wrap"><canvas id="chart-spotify-cpm"></canvas></div>
               </div>
               <div class="viz">
@@ -135,6 +136,7 @@
             <div class="kicker">Dataset 02</div>
             <h2 class="h2">Merch margins</h2>
             <p class="note">Retail price, production cost, and profit per unit for each merch item. Margin is calculated as profit divided by retail price.</p>
+            <p class="note" style="margin-top:8px;"><strong>What this shows:</strong> Vinyl and hoodies carry the strongest margins — physical products with high perceived value outperform lower-cost items on a per-unit basis.</p>
 
             <div class="table-wrap" style="margin-top:16px;">
               <table>
@@ -156,17 +158,17 @@
             <div class="viz-grid">
               <div class="viz">
                 <strong>Profit vs Cost per Unit</strong>
-                <span>How much you keep vs. what it costs to make</span>
+                <span>How much you keep vs. what it costs to make · Hover over bars to compare profit and cost per item</span>
                 <div class="viz-canvas-wrap"><canvas id="chart-merch-split"></canvas></div>
               </div>
               <div class="viz">
                 <strong>Margin % by Item</strong>
-                <span>Which item has the best margin</span>
+                <span>Which item has the best margin · Hover over segments to see exact percentages</span>
                 <div class="viz-canvas-wrap"><canvas id="chart-merch-margin"></canvas></div>
               </div>
               <div class="viz">
                 <strong>Retail Price Breakdown</strong>
-                <span>Cost vs. profit as a share of retail price</span>
+                <span>Cost vs. profit as a share of retail price · Hover over bars to compare items</span>
                 <div class="viz-canvas-wrap"><canvas id="chart-merch-retail"></canvas></div>
               </div>
             </div>
@@ -179,6 +181,7 @@
             <div class="kicker">Dataset 03</div>
             <h2 class="h2">Live venue benchmarks</h2>
             <p class="note">Venue capacity and ticket price benchmarks used to estimate live performance income. Artist cut is set in the simulator — default is 15%.</p>
+            <p class="note" style="margin-top:8px;"><strong>What this shows:</strong> Income potential scales dramatically with venue size — but so does the barrier to entry. Small clubs are accessible; arenas require an established fanbase.</p>
 
             <div class="table-wrap" style="margin-top:16px;">
               <table>
@@ -204,12 +207,12 @@
             <div class="viz-grid-2">
               <div class="viz">
                 <strong>Venue Capacity</strong>
-                <span>How many fans each venue type holds</span>
+                <span>How many fans each venue type holds · Hover over bars to compare capacity</span>
                 <div class="viz-canvas-wrap"><canvas id="chart-venue-cap"></canvas></div>
               </div>
               <div class="viz">
                 <strong>Ticket Price by Venue</strong>
-                <span>How ticket price scales with venue size</span>
+                <span>How ticket price scales with venue size · Hover over points to see exact prices</span>
                 <div class="viz-canvas-wrap"><canvas id="chart-venue-ticket"></canvas></div>
               </div>
             </div>
