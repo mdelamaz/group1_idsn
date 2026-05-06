@@ -4,7 +4,8 @@
    ============================================================= */
 
 /* --- Screen System --- */
-.sim-screen        { display: none; padding: 40px 24px; max-width: 1100px; margin: 0 auto; }
+.sim-screen        { display: none; padding: 40px calc((100% - 1100px) / 2); }
+.sim-screen.active { display: block; }
 .sim-screen.active { display: block; }
 
 /* --- Entry Screen --- */
