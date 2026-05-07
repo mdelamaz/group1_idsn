@@ -523,13 +523,15 @@ function onStrategyChange() {
 
   let label = "";
 
-  if (val < 33) {
-    label = "No releases";
-  } else if (val < 66) {
-    label = "Monthly drops";
-  } else {
-    label = "Weekly releases";
-  }
+  if (val === 0) {
+  label = "No releases";
+} else if (val < 33) {
+  label = "Low releases";
+} else if (val < 66) {
+  label = "Monthly drops";
+} else {
+  label = "Weekly releases";
+}
 
   S.streamingActivityLabel = label;
 
@@ -598,6 +600,10 @@ function onMerchChange() {
 // =============================================================
 
 function updateIncomeChart() {
+
+  console.log("chart income", S.income);
+
+
   const canvas = document.getElementById('chart-income');
   if (!canvas) return;
 
@@ -611,35 +617,23 @@ function updateIncomeChart() {
   const values = [];
   const colors = [];
 
-  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
-  const liveEnabled = document.getElementById('aud-live')?.checked;
+  if (S.income.streaming > 0) {
+  labels.push('Streaming');
+  values.push(S.income.streaming);
+  colors.push('#6366f1');
+}
 
-  // =========================
-  // STREAMING
-  // =========================
-  if (streamingEnabled) {
-    labels.push('Streaming');
-    values.push(S.income.streaming || 1); // ensures visibility even at 0
-    colors.push('#6366f1'); // purple
-  }
+if (S.income.touring > 0) {
+  labels.push('Live');
+  values.push(S.income.touring);
+  colors.push('#10b981');
+}
 
-  // =========================
-  // LIVE
-  // =========================
-  if (liveEnabled) {
-    labels.push('Live');
-    values.push(S.income.touring || 1);
-    colors.push('#10b981'); // green
-  }
-
-  // =========================
-  // MERCH (OPTIONAL)
-  // =========================
-  if (S.attachRate > 0) {
-    labels.push('Merch');
-    values.push(S.income.merch || 1);
-    colors.push('#f59e0b'); // orange
-  }
+if (S.income.merch > 0) {
+  labels.push('Merch');
+  values.push(S.income.merch);
+  colors.push('#f59e0b');
+}
 
   // =========================
   // EDGE CASE: NOTHING SELECTED
@@ -705,25 +699,11 @@ function updateStrategyFeedback() {
   const touringEl = document.getElementById('profile-touring-focus');
   const merchEl = document.getElementById('profile-merch-focus');
   const streamingEl = document.getElementById('profile-streaming-focus');
-  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
-  const liveEnabled = document.getElementById('aud-live')?.checked;
-
-  if (!streamingEnabled && liveEnabled) {
-  msg.textContent = "You rely entirely on live performance. Expanding your online presence could significantly grow your audience and income.";
-  return;
-}
-
-if (streamingEnabled && !liveEnabled) {
-  msg.textContent = "You are building an audience online but not converting it through live shows. Performing could unlock meaningful revenue.";
-  return;
-}
-
-if (!streamingEnabled && !liveEnabled) {
-  msg.textContent = "You currently have no active audience channels. You need to build reach before income becomes viable.";
-  return;
-}
 
   if (!msg || !touringEl || !merchEl || !streamingEl) return;
+
+  const streamingEnabled = document.querySelectorAll(".aud-platform:checked").length > 0;
+  const liveEnabled = document.getElementById('aud-live')?.checked;
 
   let touringLevel = "Low";
   if (S.showsPerMonth > 10) touringLevel = "Heavy";
@@ -734,8 +714,13 @@ if (!streamingEnabled && !liveEnabled) {
   else if (S.attachRate > 10) merchLevel = "Moderate";
 
   let streamingLevel = "Light";
-if (S.streamingActivity > 66) streamingLevel = "Aggressive";
-else if (S.streamingActivity > 33) streamingLevel = "Balanced";
+  if (S.streamingActivity === 0) {
+    streamingLevel = "No releases";
+  } else if (S.streamingActivity >= 66) {
+    streamingLevel = "Aggressive";
+  } else if (S.streamingActivity >= 33) {
+    streamingLevel = "Balanced";
+  }
 
   touringEl.textContent = touringLevel;
   merchEl.textContent = merchLevel;
@@ -743,21 +728,29 @@ else if (S.streamingActivity > 33) streamingLevel = "Balanced";
 
   let text = "";
 
-  if (touringLevel === "Heavy") {
-    text += "You're relying heavily on live performances. ";
-  } else if (touringLevel === "Low") {
-    text += "Low live performance limits your income potential. ";
-  }
+  if (!streamingEnabled && liveEnabled) {
+    text = "You rely entirely on live performance. Expanding your online presence could significantly grow your audience and income.";
+  } else if (streamingEnabled && !liveEnabled) {
+    text = "You are building an audience online but not converting it through live shows. Performing could unlock meaningful revenue.";
+  } else if (!streamingEnabled && !liveEnabled) {
+    text = "You currently have no active audience channels. You need to build reach before income becomes viable.";
+  } else {
+    if (touringLevel === "Heavy") {
+      text += "You're relying heavily on live performances. ";
+    } else if (touringLevel === "Low") {
+      text += "Low live performance limits your income potential. ";
+    }
 
-  if (merchLevel === "Strong") {
-    text += "Your fans are highly engaged. ";
-  }
+    if (merchLevel === "Strong") {
+      text += "Your fans are highly engaged. ";
+    }
 
-  if (streamingLevel === "Aggressive") {
-    text += "You're prioritizing audience growth. ";
-  }
+    if (streamingLevel === "Aggressive") {
+      text += "You're prioritizing audience growth. ";
+    }
 
-  if (!text) text = "Balanced strategy across income streams.";
+    if (!text) text = "Balanced strategy across income streams.";
+  }
 
   msg.textContent = text;
 }

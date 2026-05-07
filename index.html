@@ -6,7 +6,7 @@
   <title>STREAMONOMICS | Home</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<body class="home">
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="index.html">
@@ -44,51 +44,82 @@
         </div>
 
         <aside class="hero-panel">
-          <div class="card card-pad">
-            <div class="pill">Sample Scenario</div>
+          <div class="card card-pad scenario-snapshot">
+  <div class="snapshot-top">
+    <div>
+      <div class="pill">Sample Scenario</div>
+      <h4 class="snapshot-title">Can this income mix cover the city?</h4>
+    </div>
 
-            <div class="expense-list">
-              <div class="expense-row">
-                <span>Rent</span>
-                <strong>$1,450</strong>
-              </div>
-              <div class="expense-row">
-                <span>Groceries</span>
-                <strong>$380</strong>
-              </div>
-              <div class="expense-row">
-                <span>Transport</span>
-                <strong>$160</strong>
-              </div>
-              <div class="expense-row">
-                <span>Healthcare</span>
-                <strong>$240</strong>
-              </div>
-            </div>
+    <div class="snapshot-metric">
+      <span class="snapshot-label">Cost of living</span>
+      <strong>$2,230</strong>
+    </div>
+  </div>
 
-            <div class="expense-total">
-              <span>Total Monthly Expenses</span>
-              <strong>$2,230</strong>
-            </div>
-          </div>
+  <div class="snapshot-body">
+    <div class="snapshot-chart">
+      <div class="snapshot-donut"></div>
+    </div>
 
-          <div class="card card-pad">
-            <div class="pill">Survival Meter — Los Angeles</div>
+    <div class="snapshot-breakdown">
+      <div class="snapshot-row">
+        <span>Streaming</span>
+        <strong>$598</strong>
+      </div>
+      <div class="snapshot-row">
+        <span>Live performances</span>
+        <strong>$21</strong>
+      </div>
+      <div class="snapshot-row">
+        <span>Merch</span>
+        <strong>$130</strong>
+      </div>
+      <div class="snapshot-row total">
+        <span>Total income</span>
+        <strong>$928</strong>
+      </div>
+    </div>
+  </div>
 
-            <div class="meter-labels">
-              <span>Income</span>
-              <span>Expenses</span>
-            </div>
+  <div class="snapshot-insights">
+    <div class="snapshot-insight">
+      <span class="snapshot-icon">🔴</span>
+      <div>
+        <strong>Not yet sustainable</strong>
+        <p>Income is still below the monthly cost of living.</p>
+      </div>
+    </div>
 
-            <div class="meter">
-              <div class="meter-income"></div>
-              <div class="meter-expenses"></div>
-            </div>
+    <div class="snapshot-insight">
+      <span class="snapshot-icon">🎵</span>
+      <div>
+        <strong>Streaming leads</strong>
+        <p>Streaming is doing the most work, but it is not enough alone.</p>
+      </div>
+    </div>
 
-            <p class="result-line">
-              Combined monthly income: <strong>$4,680</strong> — below the cost of living in Los Angeles, California
+    <div class="snapshot-insight">
+      <span class="snapshot-icon">🎤</span>
+      <div>
+        <strong>Balance is the goal</strong>
+        <p>Long-term viability depends on multiple revenue streams.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div class="cta-video">
+          <div class="cta-video-content">
+            <div class="cta-video-thumb" style="background-image: url('assets/walkthru_thumb.png');"></div>
+            <div class="cta-kicker">Watch how it works</div>
+            <h4 class="cta-title">See the simulator in action</h4>
+            <p class="cta-desc">
+              Follow a guided walkthrough to understand how your audience, strategy, and city shape your income.
             </p>
+            <a href="https://www.youtube.com/watch?v=iViM5xppddc" class="btn btn-primary btn-lg">Watch the walkthrough →</a>
           </div>
+        </div>
         </aside>
       </div>
     </section>
@@ -100,7 +131,7 @@
           <div class="kicker">How it works</div>
           <h2 class="h2">Three streams.<br> One reality check.</h2>
           <p class="lead">
-            Most artists rely on one income stream and hope the others follow. Here's what the numbers actually look like across all three.
+            Most artists rely on one income stream and hope the others follow. Here's what the numbers actually look like across all three. Try the simulator to test your strategy.
           </p>
         </div>
         <div class="hero-panel"></div>
@@ -113,7 +144,7 @@
         <div class="grid-3">
           <article class="card page-card">
             <h3>Streaming</h3>
-            <p>500K plays sounds like a lot. See exactly what it pays — and what it doesn't.</p>
+            <p>500K plays sounds like a lot, but plays don't pay the bills. Streaming builds audience, but rarely generates sustainable income on its own.</p>
           </article>
           <article class="card page-card">
             <h3>Live Shows</h3>
@@ -121,7 +152,7 @@
           </article>
           <article class="card page-card">
             <h3>Merch</h3>
-            <p>Your most loyal fans want to support you. See how fan conversion translates into real monthly revenue.</p>
+            <p>No single stream is enough. Financial sustainability comes from balancing streaming, live shows, and fan spending.</p>
           </article>
         </div>
       </div>
@@ -130,8 +161,39 @@
   </main>
 
   <footer class="footer">
-    <div class="container mini">
-      ......
+    <div class="container">
+      <div class="footer-inner">
+
+  <div class="footer-left">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span>Streamonomics</span>
+    </div>
+    <p class="mini">
+      Helping independent artists understand the economics behind their craft.
+    </p>
+  </div>
+
+  <div class="footer-links">
+    <div class="footer-col">
+      <strong>Explore</strong>
+      <a href="index.html">Home</a>
+      <a href="resources.html">Resources</a>
+      <a href="data.html">Data</a>
+      <a href="simulator.html">Simulator</a>
+    </div>
+
+    <div class="footer-col">
+      <strong>Project</strong>
+      <a href="https://github.com/mdelamaz/group1_idsn" target="_blank">Github</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-bottom">
+  <span class="mini">© 2026 Streamonomics</span>
+</div>
     </div>
   </footer>
 </body>
