@@ -122,19 +122,20 @@ input[type="range"]   { width: 100%;  accent-color: #6366f1;}
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
+  align-items: start;
 }
 .sim-col-main { min-width: 0; }
 .sim-col-side { min-width: 0; }
 
-#screen-3 .sim-two-col {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+#screen-1 .sim-col-side,
+#screen-2 .sim-col-side,
+#screen-3 .sim-col-side {
+  position: sticky;
+  top: 160px;
+  align-self: start;
 }
 
-#screen-3 .sim-col-side {
-  width: 100%;
-}
+
 
 /* =============================
    SCREEN 3 HEADER COMPRESSION
